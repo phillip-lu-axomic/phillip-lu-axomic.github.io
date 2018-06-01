@@ -21,17 +21,47 @@
 	width: 8em;
 }
 
+.title-text, .subtitle-text {
+	width: 700px;
+}
+
 .title-text {
 	font-family: "Lora", serif;
-	font-size: x-large;
+	font-size: xx-large;
 	font-weight: 700;
 
-	text-align: left;
+	text-align: right;
+}
+
+.subtitle-text {
+	font-family: "Lora", serif;
+	font-size: small;
+	text-align: right;
+
+	font-weight: 400;
+	font-style: italic;
 }
 
 .text-block {
 	font-family: "Libre Baskerville", serif;
 	font-size: medium;
 
-	text-align: left;	
+	text-align: left;
+}
+
+.btn {
+  -webkit-border-radius: 5;
+  -moz-border-radius: 5;
+  border-radius: 5px;
+  font-family: Arial;
+  color: #fff;
+  font-size: 20px;
+  background: #3498db;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #3bf;
+  text-decoration: none;
 }
