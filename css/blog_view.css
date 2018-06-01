@@ -62,7 +62,7 @@
   text-decoration: none;
 }
 
-.full-btn {
+.full-btn, .full-img {
   text-align: center;
 
   display: block;
@@ -86,10 +86,18 @@ img {
 	border-radius: 5px;
 }
 
+blockquote {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
 blockquote:before {
 	display: block;
-    content: "&#10077";
-    font-size:150px;
-    line-height:0.6em;
-    opacity:0.2
+	content: "❝";
+	font-size: 150px;
+	line-height: 0.01em;
+	opacity: 0.2;
+	position: relative;
+	left: -35px;
+	top: 30px;
 }
