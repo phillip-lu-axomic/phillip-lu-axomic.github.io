@@ -85,3 +85,11 @@
 img {
 	border-radius: 5px;
 }
+
+blockquote:before {
+	display: block;
+    content: "&#10077";
+    font-size:150px;
+    line-height:0.6em;
+    opacity:0.2
+}
