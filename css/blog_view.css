@@ -6,13 +6,32 @@
     justify-content: center;
 }
 
+.inner-section {
+	max-width: 740px;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
 .overlay {
 	position: fixed;
 	z-index: 2;
 }
 
-.logo {
-	top: 0;
-	left: 0;
-	max-width: 8em;
+.logo img {
+	width: 8em;
+}
+
+.title-text {
+	font-family: "Lora", serif;
+	font-size: x-large;
+	font-weight: 700;
+
+	text-align: left;
+}
+
+.text-block {
+	font-family: "Libre Baskerville", serif;
+	font-size: medium;
+
+	text-align: left;	
 }
