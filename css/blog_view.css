@@ -112,3 +112,20 @@ blockquote:before {
 	top: 30px;
 	z-index: -1;
 }
+
+p.summary-block {
+	background-color: #ffcf91;
+	border-radius: 5px;
+	padding: 2em;
+	border-left: .5em solid #feae56;
+}
+
+p.summary-block::before {
+
+}
+
+p.summary-block strong {
+	/* Vocabulary phrases */
+	font-weight: bold;
+	font-style: italic;
+}
