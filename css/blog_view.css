@@ -77,6 +77,10 @@
 	margin: 1em auto;
 }
 
+.full-img img {
+	width: 100%;
+}
+
 #back-btn {
 	position: fixed;
 	left: 2em;
