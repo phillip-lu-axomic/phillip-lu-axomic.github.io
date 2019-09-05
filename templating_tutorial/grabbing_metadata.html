@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Grabbing Metadata - OpenAsset Templating Tutorial</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
+		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+	</head>
+	<body>
+		<div class="section logo">
+			<img id="template-logo" src="/images/templating.png"/>
+		</div>
+		<div class="section title">
+			<div class="inner-section">
+				<div class="title-text">
+					Grabbing Metadata
+				</div>
+				<div class="subtitle-text">
+					What kind of info are we even grabbing?
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="inner-section">
+				<div class="text-block">
+                    In the next few sections, we will learn about how to grab metadata, for use in populating the templates.
+
+                    <h3>Projects</h3>
+                    
+                    Projects have three categories of metadata:
+                    <ul>
+                        <li>
+                            Display Fields<br>
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are built-in fields, and includes "Project Name" and "Project Code".
+                            </div>
+                        </li>
+                        <li>Project Fields
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are custom fields, and include metadata that aren't usually repeated over multiple projects. (i.e. Project Cost, Start Date, etc.)
+                            </div>
+                        </li>
+                        <li>
+                            Project Keywords
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are custom keywords, and include metadata that <i>are</i> usually repeated over multiple projects. (i.e. Country, Project Type, etc.)
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Files/Albums</h3>
+                    <p>
+                        Files have two file-specific categories of metadata, as well as accessors to access project-based metadata.
+                    </p>
+
+                    <ul>
+                        <li>
+                            File Display Fields
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are built-in fields for files. For the most part we won't use these, as these contain the OpenAsset file names, and we don't use them often.
+                            </div>
+                        </li>
+                        <li>
+                            File Fields
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are custom fields for files, and include file-specific metadata.    
+                            </div>
+                        </li>
+                        <li>
+                            File Keywords
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                These are custom keywords for files. <br>
+                                <b>NOTE: <i>WE CANNOT GRAB FILE KEYWORDS FOR PROJECT/ALBUM-BASED TEMPLATES!!!!</i></b><br>
+                                The CSCs are still learning this fact. If a CSC asks you to grab file-based keywords: <b><i>WE CAN'T DO IT FOR PROJECT/ALBUM-BASED TEMPLATES!!!</i></b>
+                            </div>
+                        </li>
+                    </ul>
+
+					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
+				</div>
+			</div>
+		</div>
+		<a id="back-btn" class="btn" href="awesome_backend_overview.html">&lt  AwesomeScript™ Backend Overview</a>
+		<a id="next-btn" class="btn" href="grabbing_projects.html">Projects  &gt</a>
+	</body>
+</html>
+

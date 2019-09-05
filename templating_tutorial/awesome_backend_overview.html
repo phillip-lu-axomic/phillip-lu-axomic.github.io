@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Engineer Responsibility - OpenAsset Templating Tutorial</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
+		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+	</head>
+	<body>
+		<div class="section logo">
+			<img id="template-logo" src="/images/templating.png"/>
+		</div>
+		<div class="section title">
+			<div class="inner-section">
+				<div class="title-text">
+                    AwesomeScript™ Backend Overview
+				</div>
+				<div class="subtitle-text">
+					... So where do we actually write our script??
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="inner-section">
+				<div class="text-block">
+                    <h3>The 𝓢𝓬𝓻𝓲𝓹𝓽 Page</h3>
+                    <p>
+                        Just navigate over to the OpenAsset instance, and go to the following URL:
+                        <div style="padding:1em;">https://<span style="color:#aaa;">[your client's instance]</span>.openasset.com/Page/Scripts</div>
+
+                        You should see a list of templates available. If you'd like to create a new template, just click on the "Create New Template" button.
+                        You should see the following prompt:
+                    </p>
+                    <div class="inset-box">
+                        <img src="/images/new_template_prompt.png">
+                    </div>
+
+                    <p>
+                        <ul>
+                            <li>Name:<br>
+                                <div style="margin-left:2em">Indicates the name of the template. Clients will see this!</div>
+                            </li>
+                            <li>Application:<br>
+                                <div style="margin-left:2em">What kind of document are we exporting? InDesign/PowerPoint/Word.</div>
+                            </li>
+                            <li>Language:<br>
+                                <div style="margin-left:2em">What language we're writing the script in. Only "Awesome" applies: The others are phased out now.</span>
+                            </li>
+                            <li>Module:<br>
+                                <span style="margin-left:2em">What type of datatype is the client selecting? Project/Album/Employee</span>
+                            </li>
+                        </ul>
+                    </p>
+                    <p>
+                        "Application" will be explored in depth in the "Populating Templates" section of the tutorial. <br>
+                        "Module" will be explored in depth in the next section ("Grabbing Metadata")
+                    </p>
+                    <p>
+                        Go ahead and create a Project-based, InDesign template in your demo instance. You should see the template entry on the bottom of the Script page. <br>
+                        Clicking on the "Edit" icon will show the main scripting page:
+                    </p>
+
+					<div class="full-img">
+                        <img src="/images/awesome_template_editor.png">
+                    </div>
+
+                    <p>
+                        This is where we script out the client's templates. On the left side you'll find the script metadata, which you can edit to your heart's content. <br>
+                        <br>
+                        Beneath the script metadata, we have the "Script Data JSON" section. 
+                        This is the JSON that will be sent to the backend whenever someone wants to generate a template. <br>
+                        This will be discussed in greater depth in each "Grabbing Metadata" section. <br>
+                        <br>
+                        At the top of the middle column, we have a place for uploading the base template. <br>
+                        Below that is an "Example Data Object". This is where you can search for a Project or Album, and display what the variable "data" looks like for that particular object. <br>
+                        <br>
+                        And finally, to the right, we have the actual script that will get run anyime someone wants to create this particular template. <br>
+                        This is where you'll be writing the script that will grab metadata, and populate them into the template document. <br>
+                        <br>
+                        Don't worry if this is too much. There will be a few exercises in each section to reinforce the lessons in each section.
+                    </p>
+
+					<img src="/images/openasset_logo.jpg" class="ending-logo" align="top" style="max-height: 1em;">
+				</div>
+			</div>
+		</div>
+		<a id="back-btn" class="btn" href="engineer_responsibility.html">&lt  Engineer Responsibility</a>
+		<a id="next-btn" class="btn" href="grabbing_metadata.html">Grabbing Metadata  &gt</a>
+	</body>
+</html>
+
