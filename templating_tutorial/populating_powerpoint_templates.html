@@ -123,18 +123,20 @@
                         There are two ways to rearrange slides in PowerPoint via our Awesome Script™: 
                     </p>
 
-                    <ul>
-                        <li><code>powerpoint.copySlides(from_index, dest_index)</code>
-                            <div style="margin-left:2em; margin-bottom:1em;">
-                                Copies the slide at index <code>from_index</code>, and slide it into index <code>dest_index</code>.
-                            </div>
-                        </li>
-                        <li><code>powerpoint.removeSlides(slide_index)</code>
-                            <div style="margin-left:2em; margin-bottom:1em;">
-                                Deletes the slide at index <code>slide_index</code>.
-                            </div>
-                        </li>
-                    </ul>
+                    <div class="inset-box">
+                        <ul>
+                            <li><code>powerpoint.copySlides(from_index, dest_index)</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    Copies the slide at index <code>from_index</code>, and slide it into index <code>dest_index</code>.
+                                </div>
+                            </li>
+                            <li><code>powerpoint.removeSlides(slide_index)</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    Deletes the slide at index <code>slide_index</code>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
 
                     <p>
                         Wow! That was a lot of information (two information!)! Let's do a few exercises here to confirm that you understand the two functions. <br>
@@ -159,15 +161,17 @@
                         Be careful though, the replacement function we have is kind of brutish:
                         It replaces <i>every occurence</i> of the query text within a particular slide. The function is here:
                     </p>
-                    <ul>
-                        <li>
-                            <code>powerpoint.replaceText(query_text, new_text, slide_index)</code>
-                            <div style="margin-left:2em; margin-bottom:1em;">
-                                Replaces <i>all</i> occurences of the query string <code>query_text</code> with the string <code>new_text</code> within 
-                                the slide specified by the integer <code>slide_index</code>.
-                            </div>
-                        </li>
-                    </ul>
+                    <div class="inset-box">
+                        <ul>
+                            <li>
+                                <code>powerpoint.replaceText(query_text, new_text, slide_index)</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    Replaces <i>all</i> occurences of the query string <code>query_text</code> with the string <code>new_text</code> within 
+                                    the slide specified by the integer <code>slide_index</code>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
 
                     <p>
                         If you look at the slides, you can see that all four templates have a textbox with "&lt;metadata&gt;" in them. 
@@ -175,12 +179,107 @@
                     </p>
 
                     <div class="question">
-                            <ol>
-                                <li>What will happen if I run <code>powerpoint.replaceText("&lt;metadata&gt;", "New York City", 1)</code> on the initial PowerPoint document?</li>
-                                <li>Write the script that "removes" the "&lt;metadata&gt;" text from all the slides.</li>
-                                <li>Write the script that replaces "Slide <i>i</i>" in place of "&lt;metadata&gt;", where <i>i</i> changes dynamically based on which slide we're in.</li>
-                            </ol>
-                        </div>
+                        <ol>
+                            <li>What will happen if I run <code>powerpoint.replaceText("&lt;metadata&gt;", "New York City", 1)</code> on the initial PowerPoint document?</li>
+                            <li>Write the script that "removes" the "&lt;metadata&gt;" text from all the slides.</li>
+                            <li>Write the script that replaces "Slide <i>i</i>" in place of "&lt;metadata&gt;", where <i>i</i> changes dynamically 
+                                based on the index of the slide we're in.</li>
+                        </ol>
+                    </div>
+
+                    <h3>Populating Images</h3>
+                    <p>
+                        I know what you're thinking. "Hey! So sure, we can rearrange slides, and replace texts... what if I want some images to go with that??" 
+                        Don't you worry, we gotchu covered.
+                    </p>
+
+                    <div class="inset-box">
+                        <code>
+                            powerpoint.addImage( <br>
+                                <div style="padding-left:2em;">
+                                image_obj, <br>
+                                slide_index, <br>
+                                width_percent, <br>
+                                height_percent, <br>
+                                x_offset_percent, <br>
+                                y_offset_percent, <br>
+                                options_obj <br>
+                                </div>
+                            );
+                        </code>
+                    </div>
+
+                    <p>
+                        Going through each of the parameters:
+                    </p>
+
+                    <div class="inset-box">
+                        <ul>
+                            <li>
+                                <code>image_obj</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    An Image Object, which can be created with the syntax: <code>new Image(<i>url</i>)</code>, 
+                                    where the <code>url</code> is that of the image we want to populate.
+                                </div>
+                            </li>
+                            <li>
+                                <code>slide_index</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    Integer or Object. If an integer, represents the index of the slide we want to populate the image into. <br>
+                                    If object, needs to use the following syntax: <code>where(0).slides(slide_index).shapes(0)</code> <br>
+                                    An image can be populated into a particular layer if the object is used instead of an integer index. 
+                                </div>
+                            </li>
+                            <li>
+                                <code>width_percent</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    A String, with the format <code>"xxx%"</code>, which represents the width of the image, 
+                                    where the unit is the percentage of the slide width.<br>
+                                    <br>
+                                    As an example: setting this to "50%" would make the image half as wide as the PowerPoint slide's width.
+                                </div>
+                            </li>
+
+                            <li>
+                                <code>height_percent</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    A String, in the same format as <code>width_percent</code>, but indicating image height. <br>
+                                    <br>
+                                    Example: setting this to "50%" would make the image half as tall as the PowerPoint slide's height.
+                                </div>
+                            </li>
+
+                            <li>
+                                <code>x_offset_percent</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    A string, with the format <code>"xxx%"</code>, which indicates where the top left corner of the image should be placed.
+                                    Unit is the same as <code>width_percent</code>: the percent is the percentage of the PowerPoint slide width. <br>
+                                    <br>
+                                    Example: setting this to "50%" would make the image's left side start at the middle of the slide (horizontally).
+                                </div>
+                            </li>
+                            <li>
+                                <code>y_offset_percent</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    A string, in the same format as <code>x_offset_percent</code>. <br>
+                                    <br>
+                                    Example: setting this to "50%" would make the image's top side start at the middle of the slide (vertically).
+                                </div>
+                            </li>
+                            <li>
+                                <code>options_obj</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    JS object (<code>{}</code>). Can contain attributes to be used, most notably <code>crop</code>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    
+                    <p>
+                        Okay that's <i>actually</i> a lot of info. 
+                        For now the most relevant parameters you need to use for now is <code>image_obj</code> and <code>slide_index</code>.
+                    </p>
 
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>
