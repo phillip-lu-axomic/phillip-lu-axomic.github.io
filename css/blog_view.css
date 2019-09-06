@@ -73,18 +73,26 @@
   min-width: 10em;
 }
 
-.full-img {
+.full-img, .not-so-full-img {
 	width: 100%;
 	margin: 1em auto;
+	text-align: center;
 }
 
 .full-img img {
 	max-width: 100%;
 }
 
+.not-so-full-img img {
+	max-width: 80%;
+}
+
 .full-width-flex {
 	display: flex;
 	max-width: 100%;
+	flex-wrap: wrap;
+
+	justify-content: center;
 }
 
 .highlightable-icon {
@@ -92,6 +100,8 @@
 	border: 2px #aaa solid;
 	border-radius: 5px;
 	opacity: 1;
+	
+	text-align: center;
 }
 
 .highlightable-icon * {
@@ -116,6 +126,10 @@
 	margin-bottom: 1em;
 }
 
+code {
+	font-family: monospace;
+}
+
 #back-btn {
 	position: fixed;
 	left: 2em;
@@ -138,21 +152,46 @@ img {
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-blockquote {
+blockquote, .question {
 	margin-top: 2em;
 	margin-bottom: 2em;
 }
 
-blockquote:before {
+.question {
+	background-color: rgba(255, 235, 224, 0.521);
+	padding: 2em;
+	border-radius: 10px;
+}
+
+.question ol {
+	padding-left: 1em;
+}
+
+.question ol li {
+	padding-left: 1em;
+	padding-bottom: 0.5em;
+}
+
+blockquote:before, .question:before {
 	display: block;
-	content: "❝";
-	font-size: 150px;
 	line-height: 0.01em;
 	opacity: 0.2;
 	position: relative;
+	z-index: -1;
+}
+
+blockquote:before {
+	content: "❝";
+	font-size: 150px;
 	left: -35px;
 	top: 30px;
-	z-index: -1;
+}
+
+.question:before {
+	content: "؟";
+	font-size: 100px;
+	left: -70px;
+	top: 0px;
 }
 
 p.summary-block {

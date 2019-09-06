@@ -5,7 +5,8 @@
 		<title>PowerPoint Templates - OpenAsset Templating Tutorial</title>
 
 		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
-		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+        <link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+        <script type="text/javascript" src="/js/page_manager.js"></script>
 	</head>
 	<body>
 		<div class="section logo">
@@ -13,8 +14,8 @@
 		</div>
 		<div class="section title">
 			<div class="inner-section">
-				<div class="title-text">
-					Populating PowerPoint Templates
+				<div class="title-text" id="title-text">
+					<!-- Populating PowerPoint Templates -->
 				</div>
 				<div class="subtitle-text">
                     I'll PowerPoint you in the right direction.
@@ -29,14 +30,29 @@
                         Before we do anything else, let's take a look at the PowerPoint document that we'll be manipulating.
                         <!-- These documents contain slides, and we have two functions we can use to manipulate slides. -->
                     </p>
-                    <div class="inset-box">
-                        [placeholder for the slides]
+                    <div class="full-width-flex inset-box">
+                        <div style="text-align:center;  margin: 1em; flex-basis: 45%;"> 
+                            <img src="/images/powerpoint_example/powerpoint_slide_1.png" style="width: 100%;">
+                            slide 1 (index = 0)
+                        </div>
+                        <div style="text-align:center;  margin: 1em; flex-basis: 45%;"> 
+                            <img src="/images/powerpoint_example/powerpoint_slide_2.png" style="width: 100%;">
+                            slide 2 (index = 1)
+                        </div>
+                        <div style="text-align:center;  margin: 1em; flex-basis: 45%;"> 
+                            <img src="/images/powerpoint_example/powerpoint_slide_3.png" style="width: 100%;">
+                            slide 3
+                        </div>
+                        <div style="text-align:center;  margin: 1em; flex-basis: 45%;"> 
+                            <img src="/images/powerpoint_example/powerpoint_slide_4.png" style="width: 100%;">
+                            slide 4
+                        </div>
                     </div>
                     <div class="full-width-flex" style="justify-content:center;">
-                        <a href="/downloadable_files/a.idml">
-                        <div class="highlightable-icon">
-                            <img src="/images/indesign_file_logo.svg">
-                            <div style="font-size:0.7em; text-align: center; padding: 0.5em; line-height: 1.2em; text-decoration: none;">[placeholder for powerpoint doc]</div>
+                        <a href="/downloadable_files/powerpoint_example.pptx">
+                        <div class="highlightable-icon" >
+                            <img src="/images/powerpoint_icon.jpeg" style="width:8em;">
+                            <div style="font-size:0.7em; text-align: center; padding: 0.5em; line-height: 1.2em; text-decoration: none;">PowerPoint Example</div>
                         </div>
                         </a>
                     </div>
@@ -50,23 +66,137 @@
                     </p>
 
                     <p>
-                        
+                        Once you've uploaded this document, let's go ahead and store it in a variable within the script so we can manipulate it!
+                        You can do so with the following script:
                     </p>
+
+                    <div class="inset-box">
+                        <code>
+                            var powerpoint = new PowerPoint(data.templates.powerpointExample);
+                        </code>
+                    </div>
 
                     <p>
-                        There are two ways to rearrange slides in PowerPoint: 
-                        <ul>
-                            <li>You can copy a particular slide at index <i>i</i>, and slide it in index <i>j</i></li>
-                        </ul>
+                        Note that you'll need to make sure the template name property under <code>data.templates</code> matches up to the name you gave the template you uploaded:
                     </p>
 
+                    <div class="not-so-full-img">
+                        <img src="/images/powerpoint_clarification/ppt_script_match.png">
+                    </div>
+
+                    <p>
+                        Alright! Now our variable <code>powerpoint</code> should contain our PowerPoint object. We can now do some zany stuff like...
+                    </p>
+
+                    <h3>Exporting the Document</h3>
+
+                    <p>
+                        No point in making any changes in the document if we don't export it at all. Fortunately, the code to export the document is simple:
+                    </p>
+
+                    <div class="inset-box">
+                        <code>
+                            powerpoint.save("this_is_my_output_name.pptx");
+                        </code>
+                    </div>
+
+                    <p>
+                        noice. <br>
+                        <br>
+                        Go ahead and save this wonderfully complex template you've crafted and let's take it for a spin!
+                    </p>
+                    <p>
+                        If the template is a Project-based template, go to the Project page, and on the right of the page you should be able to generate your new PowerPoint template. <br>
+                        <br>
+                        If the template is an Album-based template, go to the Search page, select any images.
+                        The carousel on the bottom should show up, and from here you can generate your new PowerPoint template. <br>
+                        <br>
+                        If all goes well... you should end up with the same template you uploaded. <br>
+                        <br>
+                        If you didn't... damn, how?
+                    </p>
+                    <h3>Sliding Around</h3>
+                    <p>
+                        Once you get bored of  generating the same identical document over and over again, let's get into some cooler stuff. Like adding slides. Tubular.
+                    </p>
+                    <p>
+                        There are two ways to rearrange slides in PowerPoint via our Awesome Script™: 
+                    </p>
+
+                    <ul>
+                        <li><code>powerpoint.copySlides(from_index, dest_index)</code>
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                Copies the slide at index <code>from_index</code>, and slide it into index <code>dest_index</code>.
+                            </div>
+                        </li>
+                        <li><code>powerpoint.removeSlides(slide_index)</code>
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                Deletes the slide at index <code>slide_index</code>.
+                            </div>
+                        </li>
+                    </ul>
+
+                    <p>
+                        Wow! That was a lot of information (two information!)! Let's do a few exercises here to confirm that you understand the two functions. <br>
+                        If you're stuck on any of them, try the scripts in your demo instance and see if you can solve them.
+                    </p>
+                    <div class="question">
+                        <ol>
+                            <li>Given the initial PowerPoint template, what will happen if we run <code>powerpoint.removeSlides(3)</code>?</li>
+                            <li>Given the initial PowerPoint template, what will happen if we run <code>powerpoint.copySlides(1, 2)</code>?</li>
+                            <li>I want a PowerPoint template based on the initial PowerPoint template. Can I have it in the following order: [A, D, D, C].</li>
+                            <li>Create a template with 42 (forty-two) slides of (only) slide D. <i>Please</i> don't do this manually.</li>
+                        </ol>
+                    </div>
+
+                    <p>
+                        Okay. Great. So we can move templates around. Now what?
+                    </p>
+
+                    <h3>Replacing Text</h3>
+                    <p>
+                        Yes, we have the technology! Any text you see in the template, you can replace! 
+                        Be careful though, the replacement function we have is kind of brutish:
+                        It replaces <i>every occurence</i> of the query text within a particular slide. The function is here:
+                    </p>
+                    <ul>
+                        <li>
+                            <code>powerpoint.replaceText(query_text, new_text, slide_index)</code>
+                            <div style="margin-left:2em; margin-bottom:1em;">
+                                Replaces <i>all</i> occurences of the query string <code>query_text</code> with the string <code>new_text</code> within 
+                                the slide specified by the integer <code>slide_index</code>.
+                            </div>
+                        </li>
+                    </ul>
+
+                    <p>
+                        If you look at the slides, you can see that all four templates have a textbox with "&lt;metadata&gt;" in them. 
+                        We're gonna do some exercises just to see how this function works in action.
+                    </p>
+
+                    <div class="question">
+                            <ol>
+                                <li>What will happen if I run <code>powerpoint.replaceText("&lt;metadata&gt;", "New York City", 1)</code> on the initial PowerPoint document?</li>
+                                <li>Write the script that "removes" the "&lt;metadata&gt;" text from all the slides.</li>
+                                <li>Write the script that replaces "Slide <i>i</i>" in place of "&lt;metadata&gt;", where <i>i</i> changes dynamically based on which slide we're in.</li>
+                            </ol>
+                        </div>
 
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>
 			</div>
 		</div>
-		<a id="back-btn" class="btn" href="populating_indesign_templates.html">&lt  InDesign Templates</a>
-		<a id="next-btn" class="btn" href="populating_word_templates.html">Word Templates  &gt</a>
-	</body>
+		<a id="back-btn" class="btn" href="#"></a>
+		<a id="next-btn" class="btn" href="#"></a>
+    </body>
+    
+    <script>
+        populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+        populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+        populate_str_into_dom(get_current_page_name(), "title-text");
+
+        update_href_of_dom(get_prev_filename(), "back-btn");
+        update_href_of_dom(get_next_filename(), "next-btn");
+    </script>
 </html>
 
