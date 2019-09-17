@@ -128,6 +128,7 @@
 
 code {
 	font-family: monospace;
+	white-space: pre-wrap;
 }
 
 #back-btn {
@@ -220,3 +221,89 @@ a.disabled {
 .ending-logo, #template-logo {
 	box-shadow: initial;
 }
+
+#code-overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 2em;
+	text-align: center;
+	background-color: white;
+	opacity: 0;
+
+	/* animation: fadeout 1s; */
+	z-index: 1;
+}
+
+#code-overlay.fadeout {
+	display: block;
+	opacity: 1;
+	animation: fadeout 1s;
+}
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes fadein {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* .checkbox-container {
+	flex-grow: 1;
+
+	border-radius: 5px;
+	border: 1px solid #aaa;
+
+	padding: 1em;
+	margin: 0 1em;
+} */
+
+.checkbox-container {
+	flex-grow: 1;
+	flex-basis: 0;
+	display: block;
+}
+
+.checkbox-container input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+	display: none;
+}
+
+.checkbox-container label {
+	display: block;
+	border-radius: 5px;
+	border: 1px solid #ff9710;
+
+	padding-top: .5em;
+	padding-bottom: .5em;
+	margin: 0 1em;
+	cursor: pointer;
+
+	transition: all 0.10s ease-in-out;
+}
+
+.checkbox-container input[type=radio]:active ~ label {
+	opacity: 1;
+}
+
+.checkbox-container input[type=radio]:checked ~ label {
+
+	opacity: 1;
+	color: #fff;
+	background-color:#ff9710;
+}
+
+.checkbox-container input[type=radio]:hover ~ label {
+	background-color: #fcb65b;
+}
+
+/* .checkbox-container:hover {
+	background-color: #ddd;
+} */

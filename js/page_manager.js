@@ -6,17 +6,33 @@ var url_name_to_page_name = {
     "populating_indesign_templates.html": "Populating InDesign Templates",
     "populating_powerpoint_templates.html": "Populating PowerPoint Templates",
     "populating_word_templates.html": "Populating W̠͜o͕r͏̙̥̹̮͖̭̹d̶͕͎̼͍̠̱͎ Templates",
-    "grabbing_metadata.html": "Grabbing Metadata"
+    "grabbing_metadata.html": "Grabbing Metadata",
+    "grabbing_project_metadata.html": "Grabbing Project Metadata",
+    "grabbing_file_metadata.html": "Grabbing File (Album) Metadata",
+    "grabbing_employee_metadata.html": "Grabbing Employee Metadata",
+    "template_references.html": "References",
+    "custom_scripts.html": "Useful Scripts",
+    "default_script_maker.html": "Default Script Maker",
+    "end.html": "Back to Intro?",
+    "templating_intro.html": "Back to Intro?"
 };
 
 var page_ordering = [
+    "templating_intro.html",
     "populating_indesign_templates.html",
     "populating_powerpoint_templates.html",
     "populating_word_templates.html",
-    "grabbing_metadata.html"
+    "grabbing_metadata.html",
+    "grabbing_project_metadata.html",
+    "grabbing_file_metadata.html",
+    "grabbing_employee_metadata.html",
+    "template_references.html",
+    "custom_scripts.html",
+    "default_script_maker.html",
+    "templating_intro.html"
 ];
 
-var current_filename = location.href.split("/").slice(-1).pop(); 
+var current_filename = location.href.split("/").slice(-1).pop().replace(/#.*$/g,"");
 
 function get_current_page_name() {
     return url_name_to_page_name[current_filename];

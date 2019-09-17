@@ -35,5 +35,13 @@
 		<a id="back-btn" class="btn" href="grabbing_project_metadata.html">&lt  Project Metadata</a>
 		<a id="next-btn" class="btn" href=".html">Next  &gt</a>
 	</body>
+    <script>
+		populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+		populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+		populate_str_into_dom(get_current_page_name(), "title-text");
+
+		update_href_of_dom(get_prev_filename(), "back-btn");
+		update_href_of_dom(get_next_filename(), "next-btn");
+	</script>
 </html>
 

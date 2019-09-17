@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Word Templates - OpenAsset Templating Tutorial</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
+        <link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+        <script type="text/javascript" src="/js/page_manager.js"></script>
+        <script type="text/javascript" src="/js/script_maker.js"></script>
+	</head>
+	<body>
+		<div class="section logo">
+			<img id="template-logo" src="/images/templating.png"/>
+		</div>
+		<div class="section title">
+			<div class="inner-section">
+				<div class="title-text" id="title-text">
+					<!-- To be populated -->
+				</div>
+				<div class="subtitle-text">
+                    Blood, sweat, and tears went into this tool.
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="inner-section">
+				<div class="text-block">
+                    <p>
+                        Alright, just select what kind of metadata you're grabbing (Project/Image/Employee), 
+                        what kind of document you're generating (InDesign/PowerPoint) and off you go!
+                    </p>
+
+                    <div class="full-width-flex" style="text-align: center; padding: 1em 0;">
+                        <div class="checkbox-container">
+                            <input id="proj-metadata" name="metadata-type" value="project" type="radio" checked="checked">
+                            <label for="proj-metadata">
+                                Project-Based
+                            </label>
+                        </div>
+
+                        <div class="checkbox-container">
+                            <input id="image-metadata" name="metadata-type" value="image" type="radio">
+                            <label for="image-metadata">
+                                Image/Album-Based
+                            </label>
+                        </div>
+
+                        <div class="checkbox-container">
+                            <input id="emp-metadata" name="metadata-type" value="employee" type="radio">
+                            <label for="emp-metadata">
+                                Employee-Based
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="full-width-flex" style="text-align: center; padding: 1em 0;">
+                        <div class="checkbox-container">
+                            <input id="indesign-export" name="export-type" value="indesign" type="radio" checked="checked">
+                            <label for="indesign-export">
+                                InDesign
+                            </label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input id="powerpoint-export" name="export-type" value="powerpoint" type="radio">
+                            <label for="powerpoint-export">
+                                PowerPoint
+                            </label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input id="word-export" name="export-type" value="indesign" type="radio">
+                            <label for="word-export">
+                                W̠͜o͕r͏̙̥̹̮͖̭̹d̶͕͎̼͍̠̱͎
+                            </label>
+                        </div>
+                    </div>
+
+                    <a class="btn full-btn" id="copy-btn" href="#" onclick="copy_text()">Copy the script</a>
+
+                    <div class="inset-box" style="position:relative;">
+                        <div id="code-overlay">
+                            Copied!
+                        </div>
+                        <code class="code-segment" id="code-export"></code>
+                    </div>
+
+					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
+				</div>
+			</div>
+		</div>
+		<a id="back-btn" class="btn" href=""></a>
+		<a id="next-btn" class="btn" href=""></a>
+    </body>
+    <script>
+        populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+        populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+        populate_str_into_dom(get_current_page_name(), "title-text");
+
+        update_href_of_dom(get_prev_filename(), "back-btn");
+        update_href_of_dom(get_next_filename(), "next-btn");
+
+        page_setup();
+    </script>
+</html>
+
