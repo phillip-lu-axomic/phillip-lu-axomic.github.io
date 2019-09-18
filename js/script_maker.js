@@ -313,11 +313,17 @@ op_params["employee"]["powerpoint"] = `
 // options
 var uploaded_template_name = "resumeTemplate";
 var slides_per_employee = 1; // mutually exclusive with employees_per_slide (one of them must be 1);
-var employees_per_slides = 1;
+var employees_per_slide = 1;
 var output_name = "Employee Resume";
 var image_size = "medium";
 
-var current_slide = 0;
+var image_fit_or_fill = "fit"; // "fit" letterboxes image to frame
+// "fill" expands the image to fill all of the frame, crops the extras
+
+var slide_width = 13.333; // in inches.
+var slide_height = 7.5; 
+
+var current_slide = 0; // slide index of the start of current project.
 
 var employees = data.employees;
 var files = data.files;
@@ -590,12 +596,13 @@ main_loop["employee_raw"] = `
 
 
 for (var employee_index = 0; employee_index < employees.length; employee_index++) {
+  var employee_index_in_spread = employee_index % employees_per_spread;
+
   ### MANAGE DOCUMENT ###
 
   var employee = employees[employee_index];
   var hero_image_id = employee.hero_image_id;
   var hero_image = files[hero_image_id];
-  var employee_index_in_spread = employee_index % employees_per_spread;
 
   if (is_size_valid(hero_image.sizes[0])) {
     var image = hero_image;
@@ -627,7 +634,10 @@ var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
 `;
 
 main_loop["employee"]["indesign"] = main_loop["employee_raw"].replace(/ *### IMAGE MAPPING ###/, image_mapping["indesign"]);
-main_loop["employee"]["powerpoint"] = main_loop["employee_raw"].replace(/ *### IMAGE MAPPING ###/, image_mapping["powerpoint"]);
+main_loop["employee"]["powerpoint"] = main_loop["employee_raw"].replace(/ *### IMAGE MAPPING ###/, image_mapping["powerpoint"])
+  .replace("var image_spread = spread + image_mapping[images_used]", "var image_slide = current_slide + image_loc_and_size[images_used].slide_index")
+  .replace(/spread \+= spreads_per_employee/g, "current_slide += slides_per_employee")
+  .replace(/spread/g, "slide");
 main_loop["employee"]["word"] = main_loop["employee_raw"];
 
 
@@ -641,6 +651,7 @@ var manage_document = {
 };
 
 manage_document["project"]["indesign"] = `
+  // inserting new spreads if we need that.
   var master_page_indices = [0, 1];
   if (project_index !== 0) {
     if (projects_per_spread === 1 && spreads_per_project >= 1) { // one spread per project or multi-spread projects
@@ -661,14 +672,31 @@ manage_document["project"]["indesign"] = `
 `;
 
 manage_document["project"]["powerpoint"] = `
-  if (project_index < projects.length - 1) { // if there's more projects after this
-    // copy the current slides to the end
-    for (var add_slide_index = 0; add_slide_index < slides_per_project; add_slide_index++) {
-      var slide_i_to_copy = current_slide + add_slide_index;
-      var slide_i_to_paste = slide_i_to_copy + slides_per_project;
-      powerpoint.copySlides(slide_i_to_copy, slide_i_to_paste);
+  // inserting new slides if we need that
+  if (projects_per_slide === 1 && slides_per_project >= 1) { // one spread per project or multi-spread projects
+    if (project_index < projects.length - 1) { // if there's more projects after this
+      // copy the current slides to the end
+      for (var add_slide_index = 0; add_slide_index < slides_per_project; add_slide_index++) {
+        var slide_i_to_copy = current_slide + add_slide_index;
+        var slide_i_to_paste = slide_i_to_copy + slides_per_project;
+        powerpoint.copySlides(slide_i_to_copy, slide_i_to_paste);
+      }
     }
   }
+  else if (projects_per_slide > 1 && slides_per_project === 1) { // multi-projects per spread
+    if (employee_index_in_slide % projects_per_slide === 0) { // start of the current slide
+      // gotta figure out whether we want to copy the current slide later
+      if (projects.length - project_index > projects_per_slide) { // if there's enough to fill this slide AND more?
+        // add the slides
+        for (var add_slide_index = 0; add_slide_index < slides_per_project; add_slide_index++) {
+          var slide_i_to_copy = current_slide + add_slide_index;
+          var slide_i_to_paste = slide_i_to_copy + slides_per_project;
+          powerpoint.copySlides(slide_i_to_copy, slide_i_to_paste);
+        }
+      }
+    }
+  }
+
 `;
 
 manage_document["image"]["indesign"] = manage_document["project"]["indesign"].replace(/project_index/g, "faux_project_index");
@@ -680,13 +708,15 @@ manage_document["image"]["powerpoint"] = manage_document["project"]["powerpoint"
 manage_document["employee"]["indesign"] = manage_document["project"]["indesign"].replace(/spreads_per_project/g, "spreads_per_employee")
   .replace(/projects_per_spread/g, "employees_per_spread")
   .replace(/project_index/g, "employee_index")
+  .replace(/projects\.length/g, "employees.length")
   .replace("one spread per project or multi-spread projects", "one spread per employee or multi-spread employees")
   .replace("multi-projects per spread", "multi-employees per spread");
 
 manage_document["employee"]["powerpoint"] = manage_document["project"]["powerpoint"].replace(/slides_per_project/g, "slides_per_employee")
   .replace(/project_index/g, "employee_index")
+  .replace(/projects_per_slide/g, "employees_per_slide")
   .replace("more projects after this", "more employees after this")
-  .replace("projects.length", "employees.length");
+  .replace(/projects\.length/g, "employees.length");
 
 var populate_image = {};
 populate_image["indesign"] =`      
@@ -710,9 +740,6 @@ populate_image["powerpoint"] = `
       var image_aspect = size.width/size.height;
       
       if (image_fit_or_fill === "fit") {
-        var options = get_crop_option(image_aspect, requested_width, requested_height);
-      }
-      else if (image_fit_or_fill === "fill") {
         var result = get_fit_image_info(
           {"x": x_offset, "y": y_offset},
           {"width": requested_width, "height": requested_height},
@@ -724,6 +751,9 @@ populate_image["powerpoint"] = `
         x_offset = result.x;
         y_offset = result.y;
         var options = {};
+      }
+      else if (image_fit_or_fill === "fill") {
+        var options = get_crop_option(image_aspect, requested_width, requested_height);
       }
       else {
         warning("image_fit_or_fill not set!");
@@ -948,7 +978,10 @@ main_loop_req_funcs["employee"]["indesign"] = main_loop_req_funcs["generic"].sli
   "append_project_details"
 ]);
 
-main_loop_req_funcs["employee"]["powerpoint"] = [];
+main_loop_req_funcs["employee"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
+  "get_employee_project_history", "get_year_difference", "get_crop_option",
+  "get_fit_image_info"
+]);
 
 main_loop_req_funcs["employee"]["word"] = [];
 
