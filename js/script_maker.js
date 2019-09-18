@@ -167,6 +167,9 @@ json_requests["image"] = `/*
 
 json_requests["employee"] = `/*
 // JSON request
+
+// you may need to edit the files.sizes number depending on which image size they want
+// "7" should match up to "medium" by default.
 {
   "employees": {
     "orderBy": "full_name",
@@ -283,6 +286,44 @@ var current_slide = 0; // slide index of the start of current project.
 var albums = data.albums;
 
 var powerpoint = new PowerPoint(data.templates[template_name]);
+`;
+
+op_params["employee"]["indesign"] = `
+// options
+var uploaded_template_name = "resumeTemplate";
+var pages_per_spread = 1;
+var spreads_per_employee = 1; // mutually exclusive with employees_per_spread (one of them must be 1)
+var employees_per_spread = 1;
+//var images_per_employee = 1; // Don't think we can pull more than one image per employee tbh
+var output_name = "Employee Resume";
+var image_size = "medium";
+
+var spread = 0; // spread of the start of current project
+var page_start = 0; // where does the first page occur in the first spread, 0-indexed.
+var page_count = 1; // page count of the document itself
+
+var employees = data.employees;
+var files = data.files;
+var projects = data.projects;
+
+var indesign = new InDesign(data.templates[uploaded_template_name]);
+`;
+
+op_params["employee"]["powerpoint"] = `
+// options
+var uploaded_template_name = "resumeTemplate";
+var slides_per_employee = 1; // mutually exclusive with employees_per_slide (one of them must be 1);
+var employees_per_slides = 1;
+var output_name = "Employee Resume";
+var image_size = "medium";
+
+var current_slide = 0;
+
+var employees = data.employees;
+var files = data.files;
+var projects = data.projects;
+
+var powerpoint = new PowerPoint(data.templates[uploaded_template_name]);
 `;
 
 //op_params["image"]["indesign"];
@@ -524,14 +565,75 @@ var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
 
 main_loop["image"]["word"] = main_loop["image_raw"];
 
-main_loop["employee_raw"] = ``;
+var image_mapping = {};
 
-main_loop["employee"]["indesign"] = main_loop["employee_raw"];
-main_loop["employee"]["powerpoint"] = main_loop["employee_raw"];
+image_mapping["indesign"] = `
+// image_mapping's key refers to the image index, value refers to the spread offset of the imagebox
+// i.e. 1: 0 means the image at index 1 (2nd image) is at the same spread as the starting spread of the project
+var image_mapping = {
+  0: 0, 1: 0, 2:0
+};
+`;
+
+image_mapping["powerpoint"] = `
+// image location def
+var image_loc_and_size = {
+  0: {"slide_index": 0, "loc": {"x": 0, "y": 0}, "size": {"width": 2.6, "height": 1.73}},
+  1: {"slide_index": 0, "loc": {"x": 2.5, "y": 2.5}, "size": {"width": 2.6, "height": 1.73}},
+  2: {"slide_index": 0, "loc": {"x": 5, "y": 5}, "size": {"width": 2.6, "height": 1.73}}
+};
+`;
+
+main_loop["employee_raw"] = `
+
+### IMAGE MAPPING ###
+
+
+for (var employee_index = 0; employee_index < employees.length; employee_index++) {
+  ### MANAGE DOCUMENT ###
+
+  var employee = employees[employee_index];
+  var hero_image_id = employee.hero_image_id;
+  var hero_image = files[hero_image_id];
+  var employee_index_in_spread = employee_index % employees_per_spread;
+
+  if (is_size_valid(hero_image.sizes[0])) {
+    var image = hero_image;
+    image.md5 = image.md5_at_upload;
+    var image_link = "https:" + hero_image.sizes[0].http_root + hero_image.sizes[0].http_relative_path;
+    var size = {"url": image_link};
+
+    var images_used = employee_index_in_spread;
+    var image_spread = spread + image_mapping[images_used];
+
+    ### POPULATE IMAGE SECTION ###
+  }
+
+  ### POPULATE EMPLOYEE METADATA ###
+
+  // managing spreads based on options
+  if (employees_per_spread > 1 && spreads_per_employee === 1) { // we in a multi-emp per spread template
+    if (employee_index_in_spread === (employees_per_spread - 1)) { // we in the last employee of this spread
+      spread += spreads_per_employee;
+    }
+  }
+  else {
+    spread += spreads_per_employee;
+  }
+}
+
+var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
+### EXPORT DOCUMENT ###
+`;
+
+main_loop["employee"]["indesign"] = main_loop["employee_raw"].replace(/ *### IMAGE MAPPING ###/, image_mapping["indesign"]);
+main_loop["employee"]["powerpoint"] = main_loop["employee_raw"].replace(/ *### IMAGE MAPPING ###/, image_mapping["powerpoint"]);
 main_loop["employee"]["word"] = main_loop["employee_raw"];
 
 
 // in-loop stuff for dealing with spreads + pages / slides
+
+// you know, this should really be in a function tbh.
 var manage_document = {
   "project": {},
   "image": {},
@@ -539,32 +641,21 @@ var manage_document = {
 };
 
 manage_document["project"]["indesign"] = `
-  var master_page_index = 0;
+  var master_page_indices = [0, 1];
   if (project_index !== 0) {
     if (projects_per_spread === 1 && spreads_per_project >= 1) { // one spread per project or multi-spread projects
-      for (var spread_index = 0; spread_index < spreads_per_project; spread_index++) {
-        indesign.addSpreads(1);
-
-        for (var page_index = 0; page_index < pages_per_spread; page_index++) {
-          indesign.addPages(1, master_page_index);
-          page_count++; 
-        }
-      }
+      var pages_inserted = insert_spreads_and_pages(indesign, spreads_per_project, pages_per_spread, master_page_indices);
+      page_count += pages_inserted;
     }
     else if (projects_per_spread > 1 && spreads_per_project === 1) { // multi-projects per spread
-      if (project_index % projects_per_spread === 0 ) {
-        for (var spread_index = 0; spread_index < spreads_per_project; spread_index++) {
-          indesign.addSpreads(1);
-          for (var page_index = 0; page_index < pages_per_spread; page_index++) {
-            indesign.addPages(1, master_page_index);
-            page_count++; 
-          }
-        }
+      if (project_index % projects_per_spread === 0 ) { // only populate if we're on the last obj of this spread
+        var pages_inserted = insert_spreads_and_pages(indesign, spreads_per_project, pages_per_spread, master_page_indices);
+        page_count += pages_inserted;
       }
     }
     else {
       // don't know what we're doing
-      warning("Current projectsPerSpread + spreadsPerProject does not make sense.");
+      warning("Current projects_per_spread + spreads_per_project do not make sense.");
     }
   }
 `;
@@ -586,8 +677,19 @@ manage_document["image"]["powerpoint"] = manage_document["project"]["powerpoint"
   .replace("more projects after this", "more faux projects after this")
   .replace("projects.length", "faux_project_count");
 
-var project_populate_image = {};
-project_populate_image["indesign"] =`      
+manage_document["employee"]["indesign"] = manage_document["project"]["indesign"].replace(/spreads_per_project/g, "spreads_per_employee")
+  .replace(/projects_per_spread/g, "employees_per_spread")
+  .replace(/project_index/g, "employee_index")
+  .replace("one spread per project or multi-spread projects", "one spread per employee or multi-spread employees")
+  .replace("multi-projects per spread", "multi-employees per spread");
+
+manage_document["employee"]["powerpoint"] = manage_document["project"]["powerpoint"].replace(/slides_per_project/g, "slides_per_employee")
+  .replace(/project_index/g, "employee_index")
+  .replace("more projects after this", "more employees after this")
+  .replace("projects.length", "employees.length");
+
+var populate_image = {};
+populate_image["indesign"] =`      
       var imagePlaceholder = where().pageItems('image_box_' + (images_used));
       indesign.overridePageItems(image_spread, imagePlaceholder);
 
@@ -600,7 +702,7 @@ project_populate_image["indesign"] =`
       indesign.setImage(imageLink, imagePlaceholder.spreads(image_spread));
 `;
 
-project_populate_image["powerpoint"] = `
+populate_image["powerpoint"] = `
       var requested_width = image_loc_and_size[images_used].size.width;
       var requested_height = image_loc_and_size[images_used].size.height;
       var x_offset = image_loc_and_size[images_used].loc.x;
@@ -636,6 +738,9 @@ project_populate_image["powerpoint"] = `
         ((y_offset / slide_height) * 100) + "%",
         options
       );
+`;
+
+populate_image["word"] = `
 
 `;
 
@@ -721,6 +826,33 @@ populate_image_metadata["image"]["indesign"] = `
 
 populate_image_metadata["image"]["powerpoint"] = populate_image_metadata["project"]["powerpoint"];
 
+var populate_emp_metadata = {"indesign": "", "powerpoint": "", "word": ""};
+
+populate_emp_metadata["indesign"] = `
+  // getting employee metadata
+
+  var emp_name = array_reject_empty([
+    clean_string(employee.first_name),
+    clean_string(employee.last_name)
+  ]).join(" ");
+
+  var project_history = get_employee_project_history(data, employee);
+
+  // populating employee metadata
+  append_project_details(emp_name, "name_box", "Resume Full Name Bold", spread);
+
+  for (var project_index=0; project_index < project_history.length; project_index++) {
+    var project = project_history[project_index];
+    var project_text = array_reject_empty([
+      project.project_name,
+      project.project_role,
+      project.location,
+      parse_date_to_string(project.start_date) + "-" + parse_date_to_string(project.end_date)
+    ]).join(" | ");
+
+    append_project_details(project_text + "\\n", "project_history_box", "Basic Paragraph", spread);
+  }
+`;
 
 export_document = {
   "indesign": 'indesign.save(output_name + " - " + nowTime + ".idml");',
@@ -742,13 +874,31 @@ for (var metadata_index=0; metadata_index < metadata_types.length; metadata_inde
     // main_loop[metadata_type]["indesign"] = main_loop["project_raw"];
     // main_loop[metadata_type]["powerpoint"] = main_loop["project_raw"];
 
-    var replacements = [
-        [/(\n).*### POPULATE IMAGE SECTION ###/, project_populate_image[export_type]],
-        [/(\n).*### POPULATE PROJECT METADATA ###/, populate_project_metadata[metadata_type][export_type]],
-        [/(\n).*### POPULATE IMAGE METADATA ###/, populate_image_metadata[metadata_type][export_type]],
-        [/(\n).*### MANAGE DOCUMENT ###/, manage_document[metadata_type][export_type]],
-        [/(\n)### EXPORT DOCUMENT ###/, export_document[export_type]],
+    var replacements = [ 
+      [/(\n).*### POPULATE IMAGE SECTION ###/, populate_image[export_type]],
+      [/(\n).*### MANAGE DOCUMENT ###/, manage_document[metadata_type][export_type]],
+      [/(\n).*### POPULATE IMAGE METADATA ###/, populate_image_metadata[metadata_type][export_type]],
+      [/(\n)### EXPORT DOCUMENT ###/, export_document[export_type]]
     ];
+
+    if (metadata_type === "project") {
+      replacements = replacements.concat([
+        [/(\n).*### POPULATE PROJECT METADATA ###/, populate_project_metadata[metadata_type][export_type]],
+        [/(\n).*### POPULATE IMAGE METADATA ###/, populate_image_metadata[metadata_type][export_type]]
+      ]);
+    }
+
+    else if (metadata_type === "image") {
+      replacements = replacements.concat([
+        [/(\n).*### POPULATE PROJECT METADATA ###/, populate_project_metadata[metadata_type][export_type]]
+      ]);
+    }
+    
+    else if (metadata_type === "employee") {
+      replacements = replacements.concat([
+        [/(\n).*### POPULATE EMPLOYEE METADATA ###/, populate_emp_metadata[export_type]]
+      ]);
+    }
 
     for (var j=0; j<replacements.length; j++) {
         main_loop[metadata_type][export_type] = main_loop[metadata_type][export_type].replace(replacements[j][0], "$1" + replacements[j][1]);
@@ -764,11 +914,12 @@ main_loop_req_funcs["generic"] = [
     "check_and_get_property_value",
     "clean_string",
     "get_formatted_cost",
-    "array_reject_empty"
+    "parse_date_to_string",
+    "array_reject_empty",
 ];
 
 main_loop_req_funcs["project"]["indesign"] = main_loop_req_funcs["generic"].slice(0).concat([
-    "append_project_details", "populate_project_infobox"
+    "append_project_details", "populate_project_infobox", "insert_spreads_and_pages"
 ]);
 
 main_loop_req_funcs["project"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
@@ -781,7 +932,8 @@ main_loop_req_funcs["project"]["word"] = [];
 main_loop_req_funcs["image"]["indesign"] =  main_loop_req_funcs["generic"].slice(0).concat([
     "get_all_images", "append_project_details", "populate_image_infobox",
     "get_image_display_field", "get_image_custom_field",
-    "get_image_project_field", "get_image_project_keywords"
+    "get_image_project_field", "get_image_project_keywords",
+    "insert_spreads_and_pages"
 ]);
 
 main_loop_req_funcs["image"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
@@ -791,13 +943,16 @@ main_loop_req_funcs["image"]["powerpoint"] = main_loop_req_funcs["generic"].slic
 
 main_loop_req_funcs["image"]["word"] = [];
 
-main_loop_req_funcs["employee"]["indesign"] = [];
+main_loop_req_funcs["employee"]["indesign"] = main_loop_req_funcs["generic"].slice(0).concat([
+  "get_employee_project_history", "get_year_difference", "insert_spreads_and_pages",
+  "append_project_details"
+]);
 
 main_loop_req_funcs["employee"]["powerpoint"] = [];
 
 main_loop_req_funcs["employee"]["word"] = [];
 
-// main_loop["project"]["indesign"] = main_loop["project_raw"].replace(/(?:\n).*### POPULATE IMAGE SECTION ###/, project_populate_image["indesign"]);
+// main_loop["project"]["indesign"] = main_loop["project_raw"].replace(/(?:\n).*### POPULATE IMAGE SECTION ###/, populate_image["indesign"]);
 // main_loop["project"]["indesign"] = main_loop["project"]["indesign"].replace(/(?:\n).*  ### POPULATE METADATA ###/, project_populate_metadata["indesign"]);
 // main_loop["project"]["indesign"] = main_loop["project"]["indesign"].replace(/sdfsfd/, "");
 
@@ -1376,6 +1531,210 @@ function get_fit_image_info(startCoord, requestedSize, imageSize) {
 
 }
 
+functions["get_projects_metadata"] = {
+  "code": `
+function get_projects_metadata(data) {
+  // build a dictionary of all projects
+  // where keywords and fields can be accessed with names
+  var projects = data.projects;
+  var project_metadata = {}; // project_id to {"projectKeywords": {}, "fields": {}}
+  
+  //for (var project_index = 0; project_index < projects.length; project_index++) {
+  //  var project = projects[project_index];
+  for (var project_key in projects) {
+    if (!projects.hasOwnProperty(project_key)) {
+      continue;
+    }
+    var project = projects[project_key];
+
+    var fields = project.fields;
+    var projectKeywords = project.projectKeywords;
+    project_metadata[project.id] = {"name": project.name, "fields": {}, "projectKeywords": {}};
+  
+    // inserting fields
+    for (var field_index = 0; field_index < fields.length; field_index++) {
+      var this_field = fields[field_index];
+      if (this_field.id in data.fields) {
+        var field_info = data.fields[this_field.id];
+        project_metadata[project.id].fields[field_info.code] = this_field.values;
+        //warning(this_field.id + ": " + this_field.values);
+      }
+    }
+    // inserting keywords
+    // structure of the projectKeywords is:
+    // {"projectKeywords": {< keyword_category_id >: [< keyword1 >, < keyword2 >]}
+    for (var keyword_index = 0; keyword_index < projectKeywords.length; keyword_index++) {
+      var this_keyword = projectKeywords[keyword_index];
+      if (this_keyword.id in data.projectKeywords) {
+        var keyword_metadata = data.projectKeywords[this_keyword.id];
+        var keyword_category_id = keyword_metadata.project_keyword_category_id;
+        if (keyword_category_id in project_metadata[project.id].projectKeywords) {
+          project_metadata[project.id].projectKeywords[keyword_category_id].push(keyword_metadata.name);
+        }
+        else {
+          project_metadata[project.id].projectKeywords[keyword_category_id] = [keyword_metadata.name];
+        }
+      }
+    }
+  }
+  
+  return project_metadata;
+}
+`,
+  "requirements": [],
+  "type": ["employee"]
+};
+
+functions["get_employee_project_history"] = {
+  "code": `
+function get_employee_project_history(data, employee) {
+  // returns full_project_list, which is a list of projects that look like this:
+  // {"project_role": -, "project_name": -, "location": -, "start_date": -, "end_date": -}
+  var projects = data.projects;
+  
+  var project_list = employee.projects || [];
+  var project_metadata = get_projects_metadata(data);
+  var full_project_list = [];
+  for (var project_index = 0; project_index < project_list.length; project_index++) {
+    var employee_project = project_list[project_index];
+
+    // if empty, skip
+    if (employee_project.roles.rows.length === 0) {
+      continue;
+    }
+
+    var project_id = employee_project.id || "";
+    if (!project_id || !(project_id in projects)) continue;
+    var project_keywords = project_metadata[project_id].projectKeywords; // keyed by keyword category id
+    // collecting all the metadata
+    var project_name = project_metadata[project_id].name;
+    var project_description = project_metadata[project_id].fields.Description[0] || "";
+    var employee_role = employee_project.roles.rows[0].project_role; // assuming that there's only one role for this project.
+    var start_date = employee_project.roles.rows[0].start_date;
+    var end_date = employee_project.roles.rows[0].end_date;
+    var role_desc = clean_string(employee_project.roles.rows[0].role_description);
+
+    // these are literally all to get the  location
+    var city_keyword_cat_id = "2"; // these are project keyword category IDs. Need to grab these via REST API
+    var country_keyword_cat_id = "3";
+    
+    var city = "";
+    if (city_keyword_cat_id in project_keywords) {
+      if (project_keywords[city_keyword_cat_id].length > 0) {
+        city = project_keywords[city_keyword_cat_id][0]; // assuming there's only one city
+      }
+    }
+    var country = "";
+    if (country_keyword_cat_id in project_keywords) {
+      if (project_keywords[country_keyword_cat_id].length > 0) {
+        country = project_keywords[country_keyword_cat_id][0];
+      }
+    }
+    
+    var location = [];
+    if (city) {
+      location.push(city);
+    }
+    if (country) {
+      location.push(country);
+    }
+    
+    // inserting the darn project
+    var project_to_insert = {
+      "project_name": clean_string(project_name),
+      "project_role": clean_string(employee_role),
+      "location": clean_string(location.join(", ")),
+      "start_date": start_date,
+      "end_date": end_date, 
+      "description": clean_string(project_description),
+      "role_description": role_desc
+    };
+    
+    // going to insert based on end_date, reverse chronologically.
+    for (var i=0; i <= full_project_list.length; i++) {
+      if (i === full_project_list.length) {
+        // reached the end and haven't inserted yet
+        full_project_list.push(project_to_insert);
+        break;
+      }
+      var compared_end_date = full_project_list[i].end_date;
+      if (project_to_insert.end_date > compared_end_date) {
+        full_project_list.splice(i, 0, project_to_insert);
+        break;
+      }
+    }
+  }
+  return full_project_list;
+}
+`,
+  "requirements": ["get_projects_metadata"],
+  "type": ["employee"]
+};
+
+functions["get_year_difference"] = {
+  "code": `
+function get_year_difference(date_string) {
+  var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
+
+  if (date_string && date_string.length === 14) {
+    var then_str = parseInt(date_string, 10);
+  var now_str = parseInt(nowTime, 10);
+    var diff = Math.abs(now_str - then_str);
+    return Math.floor(diff/10000000000);
+  }
+  else if (date_string && date_string.length > 4) {
+    var then_year_str = parseInt(date_string.substring(0, 4), 10);
+    var now_year_str = parseInt(nowTime.substring(0, 4), 10);
+    return Math.abs(now_year_str - then_year_str) - 1;
+  }
+  else {
+    return 0;
+  }
+}
+`,
+  "requirements": [],
+  "type": ["employee"]
+};
+
+functions["insert_spreads_and_pages"] = {
+  "code": `
+function insert_spreads_and_pages(indesign, spread_count, pages_per_spread, master_page_indices) {
+  // given an InDesign obj, how many spreads we want, how many pages per spread,
+  //   and a list of master_page indices
+  // populate those spreads + pages into the indesign object.
+
+  // returned number of pages added.
+
+  var pages_added = 0;
+
+  // ensuring that the master_page_indices comes in as a list.
+  if (typeof master_page_indices === 'number') {
+    // if master_page_indices just comes in as a number instead of an array
+    if (master_page_indices % 1 === 0) {
+      // integer as index, good
+      master_page_indices = [master_page_indices];
+    }
+    else {
+      warning("Unknown Master Page Index format!!");
+    }
+  }
+
+  for (var spread_index = 0; spread_index < spread_count; spread_index++) {
+    indesign.addSpreads(1);
+    
+    for (var page_index = 0; page_index < pages_per_spread; page_index++) {
+      indesign.addPages(1, master_page_indices[spread_index]);
+      pages_added++;
+    }
+  }
+
+  return pages_added;
+}
+`,
+  "requirements": [],
+  "type": ["indesign"]
+}
+
 // var loop_requirements = {};
 // loop_requirements["project"] = {};
 // loop_requirements["project"]["indesign"] = ["check_and_get_property_value", "append_project_details", "populate_project_infobox"];
@@ -1429,3 +1788,5 @@ req_funcs = get_all_req_functions(["append_project_details", "check_and_get_prop
 var functions_to_use = {};
 functions_to_use["projects"] = {};
 functions_to_use[""]
+
+// uwu
