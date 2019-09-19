@@ -225,7 +225,7 @@ var template_name = "singleSlideTemplate";
 var slides_per_project = 1;
 var projects_per_slide = 1; // mutually exclusive with slides_per_project (one of them must nbe 1)
 var images_per_project = 3;
-var output_name = "Image-Based PowerPoint";
+var output_name = "Project-Based PowerPoint";
 var image_size = "medium";
 
 var image_fit_or_fill = "fit"; // "fit" letterboxes image to frame
@@ -239,6 +239,24 @@ var current_slide = 0; // slide index of the start of current project.
 var projects = data.projects;
 
 var powerpoint = new PowerPoint(data.templates[template_name]);
+`;
+
+op_params["project"]["word"] = `
+// options
+
+var template_name = "wordProjTemplate";
+var image_size = "medium";
+var output_name = "Project-Based Word Template";
+var image_fit_or_fill = "fit";
+
+var images_per_project = 3;
+
+// page size definition
+var page_width = 8.5;
+var page_height = 11;
+
+var word = new Word(data.templates[template_name]);
+var projects = data.projects;
 `;
 
 op_params["image"]["indesign"] = `
@@ -288,6 +306,27 @@ var albums = data.albums;
 var powerpoint = new PowerPoint(data.templates[template_name]);
 `;
 
+op_params["image"]["word"] = `
+// options
+
+// Note: since this is an image/album-based template, the projects referred to in the options refer to "faux-projects".
+//    These are simply collections of images collected as a "fake project" for the purposes of spread/slide population.
+
+var template_name = "wordProjTemplate";
+var image_size = "medium";
+var output_name = "Image-Based Word Template";
+var image_fit_or_fill = "fit";
+
+var images_per_project = 3;
+
+// page size definition
+var page_width = 8.5;
+var page_height = 11;
+
+var word = new Word(data.templates[template_name]);
+var albums = data.albums;
+`;
+
 op_params["employee"]["indesign"] = `
 // options
 var uploaded_template_name = "resumeTemplate";
@@ -332,6 +371,26 @@ var projects = data.projects;
 var powerpoint = new PowerPoint(data.templates[uploaded_template_name]);
 `;
 
+op_params["employee"]["word"] = `
+// options
+
+var template_name = "wordEmployeeTemplate";
+var image_size = "medium";
+var output_name = "Employee-Based Word Template";
+var image_fit_or_fill = "fit";
+
+// var images_per_project = 3; // can only grab one image per employee anyways
+
+// page size definition
+var page_width = 8.5;
+var page_height = 11;
+
+var word = new Word(data.templates[template_name]);
+var employees = data.employees;
+var files = data.files;
+var projects = data.projects;
+`;
+
 //op_params["image"]["indesign"];
 
 // main_loop[metadata_type][export_type]
@@ -342,12 +401,7 @@ var main_loop = {
 };
 
 main_loop["project_raw"] = `
-// image_mapping's key refers to the image index, value refers to the spread offset of the imagebox
-// i.e. 1: 0 means the image at index 1 (2nd image) is at the same spread as the starting spread of the project
-var image_mapping = {
-  0: 0,
-  1: 0
-};
+### IMAGE MAPPING ###
 
 // main loop. LOOPING THROUGH PROJECTS.
 for (var project_index = 0; project_index < projects.length; project_index++) {
@@ -397,7 +451,14 @@ var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
 ### EXPORT DOCUMENT ###
 `;
 
-main_loop["project"]["indesign"] = main_loop["project_raw"];
+main_loop["project"]["indesign"] = main_loop["project_raw"]
+  .replace(/### IMAGE MAPPING ###/, `
+// image_mapping's key refers to the image index, value refers to the spread offset of the imagebox
+// i.e. 1: 0 means the image at index 1 (2nd image) is at the same spread as the starting spread of the project
+var image_mapping = {
+  0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
+};
+`);
 
 var proj_ppt_replacements = [
   [],
@@ -454,7 +515,40 @@ var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
 ### EXPORT DOCUMENT ###
 `;
 
-main_loop["project"]["word"] = main_loop["project_raw"];
+main_loop["project"]["word"] = `
+### IMAGE MAPPING ###
+
+if (projects.length > 1) { // until we can figure out how to do more than one word doc
+  warning("More than one project were selected. Only the first project was generated.");
+}
+
+for (var project_index = 0; project_index < 1; project_index++) { // until we can copy pages, only do the first page.
+  var project = projects[project_index];
+
+  //populating images
+  var images = project.searches[0].files;
+  var images_used = 0;
+
+  for (var image_index = 0; image_index < images.length && images_used < images_per_project; image_index++ ) {
+    var image = images[image_index];
+    var size = image.sizes[image_size];
+    var url = "https:" + size.http_root + size.http_relative_path;
+
+    if (is_size_valid(size)) {
+      ### POPULATE IMAGE SECTION ###
+      
+      ### POPULATE IMAGE METADATA ###
+      
+      images_used++;
+    }
+  }
+
+  ### POPULATE PROJECT METADATA ###
+}
+
+var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
+### EXPORT DOCUMENT ###
+`;
 
 main_loop["image_raw"] = `
 var all_images = get_all_images(albums);
@@ -464,11 +558,7 @@ var faux_project_count = Math.ceil(all_images.length / images_per_project);
 
 var image_index = 0; // the actual index that we're looping through in all_images.
 
-// image_mapping's key refers to the image index, value refers to the spread offset of the imagebox
-// i.e. 1: 0 means the image at index 1 (2nd image) is at the same spread as the starting spread of the project
-var image_mapping = {
-  0: 0, 1: 0, 2:0
-};
+### IMAGE MAPPING ###
 
 for (var faux_project_index = 0; faux_project_index < faux_project_count; faux_project_index++) {
   ### MANAGE DOCUMENT ###
@@ -569,7 +659,47 @@ var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
 ### EXPORT DOCUMENT ###
 `;
 
-main_loop["image"]["word"] = main_loop["image_raw"];
+main_loop["image"]["word"] = `
+var all_images = get_all_images(albums);
+
+// amount of "faux projects" that the images can fill up
+var faux_project_count = Math.ceil(all_images.length / images_per_project);
+
+var image_index = 0; // the actual index that we're looping through in all_images.
+
+### IMAGE MAPPING ###
+
+if (faux_project_count > 1) {
+  warning("Selected more images than frameboxes in the template. All the extra images are not populated.");
+}
+
+for (var faux_project_index = 0; faux_project_index < 1; faux_project_index++) {
+  var images_used = 0;
+  var proj_metadata_populated = false;
+
+  for (image_index; image_index < all_images.length && images_used < images_per_project; image_index++) {
+    var image = all_images[image_index];
+    var size = image.sizes[image_size];
+    size.url = "https:" + size.http_root + size.http_relative_path;
+
+    if (is_size_valid(size)) {
+      ### POPULATE IMAGE SECTION ###
+
+      if (!proj_metadata_populated) {
+        ### POPULATE PROJECT METADATA ###
+        proj_metadata_populated = true;
+      }
+
+      ### POPULATE IMAGE METADATA ###
+
+      images_used++;
+    }
+  }
+}
+
+var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
+### EXPORT DOCUMENT ###
+`;
 
 var image_mapping = {};
 
@@ -577,7 +707,7 @@ image_mapping["indesign"] = `
 // image_mapping's key refers to the image index, value refers to the spread offset of the imagebox
 // i.e. 1: 0 means the image at index 1 (2nd image) is at the same spread as the starting spread of the project
 var image_mapping = {
-  0: 0, 1: 0, 2:0
+  0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
 };
 `;
 
@@ -589,11 +719,20 @@ var image_loc_and_size = {
   2: {"slide_index": 0, "loc": {"x": 5, "y": 5}, "size": {"width": 2.6, "height": 1.73}}
 };
 `;
+image_mapping["word"] = `
+// image mapping
+// paragraph_index refers to the paragraph index of the Word framebox
+// i.e. "paragraph_index": 5 means the image is at the 5th < w:p> tag within the Word XML
+
+var image_loc_and_size = {
+  0: {"paragraph_index": 5, "loc": {"x": 0, "y": 0}, "size": {"width": 2.6, "height": 1.73}},
+  1: {"paragraph_index": 24, "loc": {"x": 0, "y": 0}, "size": {"width": 2.6, "height": 1.73}},
+  2: {"paragraph_index": 18, "loc": {"x": 0, "y": 0}, "size": {"width": 2.6, "height": 1.73}}
+};
+`;
 
 main_loop["employee_raw"] = `
-
 ### IMAGE MAPPING ###
-
 
 for (var employee_index = 0; employee_index < employees.length; employee_index++) {
   var employee_index_in_spread = employee_index % employees_per_spread;
@@ -638,7 +777,32 @@ main_loop["employee"]["powerpoint"] = main_loop["employee_raw"].replace(/ *### I
   .replace("var image_spread = spread + image_mapping[images_used]", "var image_slide = current_slide + image_loc_and_size[images_used].slide_index")
   .replace(/spread \+= spreads_per_employee/g, "current_slide += slides_per_employee")
   .replace(/spread/g, "slide");
-main_loop["employee"]["word"] = main_loop["employee_raw"];
+main_loop["employee"]["word"] = `
+### IMAGE MAPPING ###
+
+if (employees.length > 1) { // until we can figure out how to do more than one word doc
+  warning("More than one employee were selected. Only the first employee was generated.");
+}
+
+for (var employee_index = 0; employee_index < 1; employee_index++) {
+  var employee = employees[employee_index];
+  var hero_image_id = employee.hero_image_id;
+  var hero_image = files[hero_image_id];
+
+  if (check_property_exists(hero_image, ["sizes", 0])) {
+    var size = hero_image.sizes[0];
+    size.url = "https:" + size.http_root + size.http_relative_path;
+
+    var images_used = 0;
+    ### POPULATE IMAGE SECTION ###
+  }
+
+  ### POPULATE EMPLOYEE METADATA ###
+}
+
+var nowTime = AwesomeHelpers.Generic.jsDateTo14DigitDate(new Date());
+### EXPORT DOCUMENT ###
+`;
 
 
 // in-loop stuff for dealing with spreads + pages / slides
@@ -696,7 +860,6 @@ manage_document["project"]["powerpoint"] = `
       }
     }
   }
-
 `;
 
 manage_document["image"]["indesign"] = manage_document["project"]["indesign"].replace(/project_index/g, "faux_project_index");
@@ -771,7 +934,41 @@ populate_image["powerpoint"] = `
 `;
 
 populate_image["word"] = `
+        var requested_width = image_loc_and_size[images_used].size.width;
+        var requested_height = image_loc_and_size[images_used].size.height;
+        var x_offset = image_loc_and_size[images_used].loc.x;
+        var y_offset = image_loc_and_size[images_used].loc.y;
+        var image_aspect = size.width/size.height;
 
+        if (image_fit_or_fill === "fit") {
+          var result = get_fit_image_info(
+            {"x": x_offset, "y": y_offset},
+            {"width": requested_width, "height": requested_height},
+            size
+          );
+
+          requested_width = result.width;
+          requested_height = result.height;
+          x_offset = result.x;
+          y_offset = result.y;
+          var options = {};
+        }
+        else if (image_fit_or_fill === "fill") {
+          var options = get_crop_option(image_aspect, requested_width, requested_height);
+        }
+        else {
+          warning("image_fit_or_fill not set!");
+        }
+
+        word.addImage(
+          new Image(size.url),
+          where().paragraphs(image_loc_and_size[images_used].paragraph_index),
+          ((requested_width / page_width) * 100) +'%',
+          ((requested_height / page_height) * 100) +'%',
+          ((x_offset / page_width) * 100) + "%",
+          ((y_offset / page_height) * 100) + "%",
+          options
+        );
 `;
 
 var populate_project_metadata = {"project": {}, "image": {}, "employee": {}};
@@ -786,9 +983,9 @@ populate_project_metadata["project"]["indesign"] = `
 populate_project_metadata["project"]["powerpoint"] = `
         var metadata = [
           ["{Project Long Name}", ""],
-          ["{Year Completed}", parse_date_to_string(get_image_project_field(image, "CompletionDate"))],
-          ["{Client}", get_image_project_field(image, "Client")],
-          ["{Type of Building}", get_image_project_keywords(image, "TypeofBuilding").join(", ")],
+          ["{Year Completed}", parse_date_to_string(get_project_field_value(project, "CompletionDate"))],
+          ["{Client}", get_project_field_value(project, "Client")],
+          ["{Type of Building}", get_project_keywords(project, "TypeofBuilding").join(", ")],
           ["{Project Background Paragraphs}", ""],
           ['{Site Description Paragraphs}', ""],
           ['{Role Paragraphs}', ""],
@@ -802,8 +999,31 @@ populate_project_metadata["project"]["powerpoint"] = `
           var query = metadata[metadata_index][0];
           var replace = metadata[metadata_index][1];
 
-          powerpoint.replaceText(query, replace, current_slide);
+          word.replaceText(query, replace);
         }
+`;
+
+populate_project_metadata["project"]["word"] = `
+    var metadata = [
+      ["{Project Long Name}", ""],
+      ["{Year Completed}", parse_date_to_string(get_project_field_value(project, "CompletionDate"))],
+      ["{Client}", get_project_field_value(project, "Client")],
+      ["{Type of Building}", get_project_keywords(project, "TypeofBuilding").join(", ")],
+      ["{Project Background Paragraphs}", ""],
+      ['{Site Description Paragraphs}', ""],
+      ['{Role Paragraphs}', ""],
+      ['{Bullet Text}', ""],
+      ['{Crew Paragraph}', ""],
+      ['{Results Paragraphs}', ""],
+      ['{Health and Safety Requirements Paragraphs}', ""]
+    ];
+
+    for (var metadata_index = 0; metadata_index < metadata.length; metadata_index++) {
+      var query = metadata[metadata_index][0];
+      var replace = metadata[metadata_index][1];
+
+      word.replaceText(query, replace);
+    }
 `;
 
 populate_project_metadata["image"]["indesign"] = `
@@ -838,7 +1058,15 @@ populate_project_metadata["image"]["indesign"] = `
         }
 `;
 
-populate_project_metadata["image"]["powerpoint"] = populate_project_metadata["project"]["powerpoint"];
+populate_project_metadata["image"]["powerpoint"] = populate_project_metadata["project"]["powerpoint"]
+  .replace(/get_project_field_value/g, "get_image_project_field")
+  .replace(/get_project_keywords/, "get_image_project_keywords")
+  .replace(/\(project, "(.+)"\)/g,"(image, \"$1\")");
+
+populate_project_metadata["image"]["word"] = populate_project_metadata["project"]["word"]
+.replace(/get_project_field_value/g, "get_image_project_field")
+.replace(/get_project_keywords/, "get_image_project_keywords")
+.replace(/\(project, "(.+)"\)/g,"(image, \"$1\")");;
 
 var populate_image_metadata = {"project": {}, "image": {}, "employee": {}};
 populate_image_metadata["project"]["indesign"] = "";
@@ -848,6 +1076,11 @@ populate_image_metadata["project"]["powerpoint"] = `
       powerpoint.replaceText("project_name", name, current_slide);
 `;
 
+populate_image_metadata["project"]["word"] = `
+      var caption = get_image_display_field(image, "caption");
+      word.replaceText("{caption}", caption);
+`;
+
 populate_image_metadata["image"]["indesign"] = `
         var name = get_image_display_field(image, "projectName");
         name = clean_string(name);
@@ -855,6 +1088,8 @@ populate_image_metadata["image"]["indesign"] = `
 `;
 
 populate_image_metadata["image"]["powerpoint"] = populate_image_metadata["project"]["powerpoint"];
+
+populate_image_metadata["image"]["word"] = populate_image_metadata["project"]["word"];
 
 var populate_emp_metadata = {"indesign": "", "powerpoint": "", "word": ""};
 
@@ -884,10 +1119,44 @@ populate_emp_metadata["indesign"] = `
   }
 `;
 
+populate_emp_metadata["word"] = `
+  // getting employee metadata
+  var metadata = [
+    ["{Project Long Name}", clean_string(employee.first_name + " " + employee.last_name)],
+    ["{Year Completed}", ""],
+    ["{Description}", ""],
+    ["{Location}", clean_string(employee.location)]
+  ];
+
+  for (var i=0; i < metadata.length; i++) {
+    var metadata_row = metadata[i];
+    word.replaceText(metadata_row[0], metadata_row[1]);
+  }
+
+  var project_history = get_employee_project_history(data, employee);
+
+  for (var project_index=0; project_index < 5; project_index++) {
+    if (project_index < project_history.length) {
+      var project = project_history[project_index];
+    }
+    else {
+      var project = {};
+    }
+    var project_text = array_reject_empty([
+      project.project_name,
+      project.project_role,
+      project.location,
+      parse_date_to_string(project.start_date) + "-" + parse_date_to_string(project.end_date)
+    ]).join(" | ");
+
+    word.replaceText("{project" + project_index + "}", project_text);
+  }
+`;
+
 export_document = {
   "indesign": 'indesign.save(output_name + " - " + nowTime + ".idml");',
   "powerpoint": 'powerpoint.save(output_name + " - " + nowTime + ".pptx");',
-  "word": ''
+  "word": 'word.save(output_name + " - " + nowTime + ".docx");'
 }
 
 // replacing text for the main loop
@@ -899,16 +1168,12 @@ for (var metadata_index=0; metadata_index < metadata_types.length; metadata_inde
   for (var export_index = 0; export_index < export_types.length; export_index++) {
     var export_type = export_types[export_index];
 
-
-    // var raw_key = metadata_type + "_raw";
-    // main_loop[metadata_type]["indesign"] = main_loop["project_raw"];
-    // main_loop[metadata_type]["powerpoint"] = main_loop["project_raw"];
-
     var replacements = [ 
       [/(\n).*### POPULATE IMAGE SECTION ###/, populate_image[export_type]],
       [/(\n).*### MANAGE DOCUMENT ###/, manage_document[metadata_type][export_type]],
       [/(\n).*### POPULATE IMAGE METADATA ###/, populate_image_metadata[metadata_type][export_type]],
-      [/(\n)### EXPORT DOCUMENT ###/, export_document[export_type]]
+      [/(\n)### EXPORT DOCUMENT ###/, export_document[export_type]],
+      [/(\n).*### IMAGE MAPPING ###/, image_mapping[export_type]]
     ];
 
     if (metadata_type === "project") {
@@ -946,6 +1211,7 @@ main_loop_req_funcs["generic"] = [
     "get_formatted_cost",
     "parse_date_to_string",
     "array_reject_empty",
+    "get_image_display_field"
 ];
 
 main_loop_req_funcs["project"]["indesign"] = main_loop_req_funcs["generic"].slice(0).concat([
@@ -954,24 +1220,27 @@ main_loop_req_funcs["project"]["indesign"] = main_loop_req_funcs["generic"].slic
 
 main_loop_req_funcs["project"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
     "get_crop_option", "get_fit_image_info", "get_project_field_value", "get_project_keywords",
-    "parse_date_to_string", "get_formatted_cost"
 ]);
 
-main_loop_req_funcs["project"]["word"] = [];
+main_loop_req_funcs["project"]["word"] = main_loop_req_funcs["generic"].slice(0).concat([
+  "get_project_field_value", "get_project_keywords", "get_fit_image_info", "get_crop_option"
+]);
 
 main_loop_req_funcs["image"]["indesign"] =  main_loop_req_funcs["generic"].slice(0).concat([
-    "get_all_images", "append_project_details", "populate_image_infobox",
-    "get_image_display_field", "get_image_custom_field",
+    "get_all_images", "append_project_details", "populate_image_infobox", "get_image_custom_field",
     "get_image_project_field", "get_image_project_keywords",
     "insert_spreads_and_pages"
 ]);
 
 main_loop_req_funcs["image"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
-    "get_all_images", "get_crop_option", "get_fit_image_info", "get_image_display_field", 
-    "get_image_project_field", "get_image_project_keywords", "parse_date_to_string"
+    "get_all_images", "get_crop_option", "get_fit_image_info", 
+    "get_image_project_field", "get_image_project_keywords"
 ]);
 
-main_loop_req_funcs["image"]["word"] = [];
+main_loop_req_funcs["image"]["word"] = main_loop_req_funcs["generic"].slice(0).concat([
+  "get_all_images", "get_crop_option", "get_fit_image_info", 
+  "get_image_project_field", "get_image_project_keywords"
+]);
 
 main_loop_req_funcs["employee"]["indesign"] = main_loop_req_funcs["generic"].slice(0).concat([
   "get_employee_project_history", "get_year_difference", "insert_spreads_and_pages",
@@ -983,7 +1252,10 @@ main_loop_req_funcs["employee"]["powerpoint"] = main_loop_req_funcs["generic"].s
   "get_fit_image_info"
 ]);
 
-main_loop_req_funcs["employee"]["word"] = [];
+main_loop_req_funcs["employee"]["word"] = main_loop_req_funcs["generic"].slice(0).concat([
+  "get_employee_project_history", "get_year_difference", "get_crop_option",
+  "get_fit_image_info"
+]);
 
 // main_loop["project"]["indesign"] = main_loop["project_raw"].replace(/(?:\n).*### POPULATE IMAGE SECTION ###/, populate_image["indesign"]);
 // main_loop["project"]["indesign"] = main_loop["project"]["indesign"].replace(/(?:\n).*  ### POPULATE METADATA ###/, project_populate_metadata["indesign"]);
