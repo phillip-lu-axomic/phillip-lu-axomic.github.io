@@ -476,6 +476,7 @@ var image_loc_and_size = {
 // main loop. LOOPING THROUGH PROJECTS.
 for (var project_index = 0; project_index < projects.length; project_index++) {
   var project = projects[project_index];
+  var project_index_in_slide = project_index % projects_per_slide;
 
   ### MANAGE DOCUMENT ###
 
@@ -620,6 +621,7 @@ var image_loc_and_size = {
 };
 
 for (var faux_project_index = 0; faux_project_index < faux_project_count; faux_project_index++) {
+  var faux_project_index_in_slide = faux_project_index % projects_per_slide;
   ### MANAGE DOCUMENT ###
 
   var images_used = 0;
@@ -747,7 +749,8 @@ for (var employee_index = 0; employee_index < employees.length; employee_index++
     var image = hero_image;
     image.md5 = image.md5_at_upload;
     var image_link = "https:" + hero_image.sizes[0].http_root + hero_image.sizes[0].http_relative_path;
-    var size = {"url": image_link};
+    var size = hero_image.sizes[0];
+    size.url = image_link;
 
     var images_used = employee_index_in_spread;
     var image_spread = spread + image_mapping[images_used];
@@ -848,7 +851,7 @@ manage_document["project"]["powerpoint"] = `
     }
   }
   else if (projects_per_slide > 1 && slides_per_project === 1) { // multi-projects per spread
-    if (employee_index_in_slide % projects_per_slide === 0) { // start of the current slide
+    if (project_index_in_slide % projects_per_slide === 0) { // start of the current slide
       // gotta figure out whether we want to copy the current slide later
       if (projects.length - project_index > projects_per_slide) { // if there's enough to fill this slide AND more?
         // add the slides
@@ -866,7 +869,7 @@ manage_document["image"]["indesign"] = manage_document["project"]["indesign"].re
 
 manage_document["image"]["powerpoint"] = manage_document["project"]["powerpoint"].replace(/project_index/g, "faux_project_index")
   .replace("more projects after this", "more faux projects after this")
-  .replace("projects.length", "faux_project_count");
+  .replace(/projects\.length/g, "faux_project_count");
 
 manage_document["employee"]["indesign"] = manage_document["project"]["indesign"].replace(/spreads_per_project/g, "spreads_per_employee")
   .replace(/projects_per_spread/g, "employees_per_spread")
@@ -983,8 +986,8 @@ populate_project_metadata["project"]["indesign"] = `
 populate_project_metadata["project"]["powerpoint"] = `
         var metadata = [
           ["{Project Long Name}", ""],
-          ["{Year Completed}", parse_date_to_string(get_project_field_value(project, "CompletionDate"))],
-          ["{Client}", get_project_field_value(project, "Client")],
+          ["{Year Completed}", parse_date_to_string(get_project_field(project, "CompletionDate"))],
+          ["{Client}", get_project_field(project, "Client")],
           ["{Type of Building}", get_project_keywords(project, "TypeofBuilding").join(", ")],
           ["{Project Background Paragraphs}", ""],
           ['{Site Description Paragraphs}', ""],
@@ -999,15 +1002,15 @@ populate_project_metadata["project"]["powerpoint"] = `
           var query = metadata[metadata_index][0];
           var replace = metadata[metadata_index][1];
 
-          word.replaceText(query, replace);
+          powerpoint.replaceText(query, replace, current_slide);
         }
 `;
 
 populate_project_metadata["project"]["word"] = `
     var metadata = [
       ["{Project Long Name}", ""],
-      ["{Year Completed}", parse_date_to_string(get_project_field_value(project, "CompletionDate"))],
-      ["{Client}", get_project_field_value(project, "Client")],
+      ["{Year Completed}", parse_date_to_string(get_project_field(project, "CompletionDate"))],
+      ["{Client}", get_project_field(project, "Client")],
       ["{Type of Building}", get_project_keywords(project, "TypeofBuilding").join(", ")],
       ["{Project Background Paragraphs}", ""],
       ['{Site Description Paragraphs}', ""],
@@ -1059,12 +1062,12 @@ populate_project_metadata["image"]["indesign"] = `
 `;
 
 populate_project_metadata["image"]["powerpoint"] = populate_project_metadata["project"]["powerpoint"]
-  .replace(/get_project_field_value/g, "get_image_project_field")
+  .replace(/get_project_field/g, "get_image_project_field")
   .replace(/get_project_keywords/, "get_image_project_keywords")
   .replace(/\(project, "(.+)"\)/g,"(image, \"$1\")");
 
 populate_project_metadata["image"]["word"] = populate_project_metadata["project"]["word"]
-.replace(/get_project_field_value/g, "get_image_project_field")
+.replace(/get_project_field/g, "get_image_project_field")
 .replace(/get_project_keywords/, "get_image_project_keywords")
 .replace(/\(project, "(.+)"\)/g,"(image, \"$1\")");;
 
@@ -1119,10 +1122,44 @@ populate_emp_metadata["indesign"] = `
   }
 `;
 
+populate_emp_metadata["powerpoint"] = `
+  // getting employee metadata
+  var metadata = [
+    ["{Employee Name}", clean_string(employee.first_name + " " + employee.last_name)],
+    ["{Year Completed}", ""],
+    ["{Description}", ""],
+    ["{Location}", clean_string(employee.location)]
+  ];
+
+  for (var i=0; i < metadata.length; i++) {
+    var metadata_row = metadata[i];
+    powerpoint.replaceText(metadata_row[0], metadata_row[1], current_slide);
+  }
+
+  var project_history = get_employee_project_history(data, employee);
+
+  for (var project_index=0; project_index < 5; project_index++) {
+    if (project_index < project_history.length) {
+      var project = project_history[project_index];
+    }
+    else {
+      var project = {};
+    }
+    var project_text = array_reject_empty([
+      project.project_name,
+      project.project_role,
+      project.location,
+      parse_date_to_string(project.start_date) + "-" + parse_date_to_string(project.end_date)
+    ]).join(" | ");
+
+    powerpoint.replaceText("{project" + project_index + "}", project_text, current_slide);
+  }
+`;
+
 populate_emp_metadata["word"] = `
   // getting employee metadata
   var metadata = [
-    ["{Project Long Name}", clean_string(employee.first_name + " " + employee.last_name)],
+    ["{Employee Name}", clean_string(employee.first_name + " " + employee.last_name)],
     ["{Year Completed}", ""],
     ["{Description}", ""],
     ["{Location}", clean_string(employee.location)]
@@ -1219,11 +1256,11 @@ main_loop_req_funcs["project"]["indesign"] = main_loop_req_funcs["generic"].slic
 ]);
 
 main_loop_req_funcs["project"]["powerpoint"] = main_loop_req_funcs["generic"].slice(0).concat([
-    "get_crop_option", "get_fit_image_info", "get_project_field_value", "get_project_keywords",
+    "get_crop_option", "get_fit_image_info", "get_project_field", "get_project_keywords",
 ]);
 
 main_loop_req_funcs["project"]["word"] = main_loop_req_funcs["generic"].slice(0).concat([
-  "get_project_field_value", "get_project_keywords", "get_fit_image_info", "get_crop_option"
+  "get_project_field", "get_project_keywords", "get_fit_image_info", "get_crop_option"
 ]);
 
 main_loop_req_funcs["image"]["indesign"] =  main_loop_req_funcs["generic"].slice(0).concat([
@@ -1356,9 +1393,9 @@ function populate_project_infobox(project, spread) {
   append_project_details("", infobox_tag, "", spread); // Bio Paragraph
   
   var metadata = [
-    ["Years of Experience", get_project_field_value(project, "years_of_experience")],
+    ["Years of Experience", get_project_field(project, "years_of_experience")],
     ["Education", get_project_keywords(project, "education")],
-    ["Start Date", parse_date_to_string(get_project_field_value(project, "StartDate"))]
+    ["Start Date", parse_date_to_string(get_project_field(project, "StartDate"))]
   ];
   
   for (var i=0; i < metadata.length; i++) {
@@ -1375,13 +1412,13 @@ function populate_project_infobox(project, spread) {
   }
 }
 `,
-    "requirements": ["get_project_field_value", "get_project_keywords", "parse_date_to_string", "populate_infobox_entry"],
+    "requirements": ["get_project_field", "get_project_keywords", "parse_date_to_string", "populate_infobox_entry"],
     "type": ["project", "indesign"]
 }
 
-functions["get_project_field_value"] = {
+functions["get_project_field"] = {
     "code": `
-function get_project_field_value(project, field) {
+function get_project_field(project, field) {
   return clean_string(check_and_get_property_value(project, ["fields", field, "values", 0]));
 }
 `,
