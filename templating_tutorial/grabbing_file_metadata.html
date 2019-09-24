@@ -6,6 +6,8 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
 		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+
+		<script type="text/javascript" src="/js/page_manager.js"></script>
 	</head>
 	<body>
 		<div class="section logo">
@@ -13,7 +15,7 @@
 		</div>
 		<div class="section title">
 			<div class="inner-section">
-				<div class="title-text">
+				<div class="title-text" id="title-text">
 					Grabbing File (Album) Metadata
 				</div>
 				<div class="subtitle-text">
@@ -25,14 +27,121 @@
 			<div class="inner-section">
 				<div class="text-block">
                     <p>
-                        im sowwy i dont have any info to give right now regarding this because writing documentation is hard
-                    </p>
+						When you create a project-based template, the Awesome backend will allow the script to access the <code>data</code> variable. <br>
+						<code>data</code> has the following format:
+					</p>
+					
+					<div class="inset-box">
+						<code>{
+  "templates": {
+    "&lt;template name&gt;": "..."
+  }
+  "albums": [//"list" of albums
+    {
+      "files": [
+        "id": &lt;image_id&gt;,
+        "displayFields": { // display fields will only appear if you request them in the request JSON
+          "photographer": "Barack Obama",
+          "filename": "A0061_N45.jpg" 
+        }
+        "projectFields": {
+          "Description": {
+            "values": [
+              "This is the project description"
+            ]
+          },
+          "CompletionDate": {
+            "values": [
+              "20190924000000"
+            ]
+          },
+          ... // more fields
+        }
+        "projectKeywords": {
+          "categories": {
+            "MarketSector": {
+              "keywords": [
+                  { "name": "Corporate" },
+                  { "name": "Finance" }
+              ]
+            },
+            "Services" {
+              "keywords": [...]
+            },
+            ... // more keyword categories
+          }
+        },
+        "sizes": {
+          "medium": { // the size returned is the one requested in the request JSON.
+            "url": "https://...",
+            "width": "420",
+            "height": "1337"
+          }
+        }
+      ]
+    }
+  ]
+}
+						</code>
+					</div>
+					<p>
+							Again, like the project metadata, there's a lot to look at. TODO: Write a JSON viewer in JS. <br>
+							A simple guide of what's going on:
+						</p>
+	
+						<ul>
+							<li>
+								The <code>data</code> variable has two attributes: <code>templates</code> and <code>albums</code>.
+							</li>
+							<li>
+								Everything important exists in side the <code>albums</code> attribute. 
+								Due to the way the backend is setup, I think we'll only ever get one album at a time.
+							</li>
+							<li>
+								Each "album object" contains the following attributes:
+								<ul>
+									<li><code>id</code> - Image ID</li>
+									<li><code>displayFields</code> - image-based fields. Needs to be requested in the request JSON.</li>
+									<li><code>projectFields</code> - project-based fields for the project associated with the image.</li>
+									<li><code>projectKeywords</code> - project-based keywords for the project associated with the image</li>
+									<li><code>sizes</code> - size objects for the requested image size.</li>
+								</ul>
+							</li>
+							<li>
+								The <code>projectFields</code> dictionary is key'd on project field codes, their value a dict with the attribute "values" that contains a list of field values.
+								I've never seen this <code>values</code> attribute contain more than one value.
+							</li>
+							<li>
+								The <code>projectKeywords</code> object contains a singular attribute: <code>categories</code>, 
+								which contains a dictionary object that is key'd on the project keyword codes, their value an object containing the attribute <code>keywords</code>
+								the points to a list of keyword objects. <br>
+								Each keyword object is a simple <code>name</code> attribute that points to the keyword name.
+							</li>
+						</ul>
+						<p>
+							I've crafted the following questions to test every aspect of grabbing image metadata. 
+							Once you're able to answer the questions, you should be able to ready to do project-based templates. <br>
+							<br>
+							For all the questions, assume you have access to the variable <code>data</code>.
+						</p>
 
+						<div class="question">
+							<ol>
+								<li>
+									The client has selected a single image. This image is linked to the project "AXO001".
+									Retrieve the image's project field <code>Client</code>.
+								</li>
+								<li>
+									The client has selected two images. The images do not belong to any project.
+									What do you need to do in order to retrieve the images' <code>photographer</code> display field?
+								</li>
+							</ol>
+						</div>
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>
 			</div>
 		</div>
-		<a id="back-btn" class="btn" href="grabbing_project_metadata.html">&lt  Project Metadata</a>
+		<a id="back-btn" class="btn" href=".html">&lt  Project Metadata</a>
 		<a id="next-btn" class="btn" href=".html">Next  &gt</a>
 	</body>
     <script>

@@ -189,9 +189,12 @@ blockquote:before {
 }
 
 .question:before {
-	content: "؟";
+	/* content: "؟"; */
+	content: "?";
 	font-size: 100px;
-	left: -70px;
+	font-weight: bold;
+	font-family: 'Roboto', 'Open Sans', 'Helvetica Neue', sans-serif;
+	left: -85px;
 	top: 0px;
 }
 

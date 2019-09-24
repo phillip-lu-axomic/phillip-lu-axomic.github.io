@@ -6,6 +6,8 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
 		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+
+		<script type="text/javascript" src="/js/page_manager.js"></script>
 	</head>
 	<body>
 		<div class="section logo">
@@ -13,7 +15,7 @@
 		</div>
 		<div class="section title">
 			<div class="inner-section">
-				<div class="title-text">
+				<div class="title-text"  id="title-text">
 					Grabbing Project Metadata
 				</div>
 				<div class="subtitle-text">
@@ -25,8 +27,125 @@
 			<div class="inner-section">
 				<div class="text-block">
                     <p>
-                        Placeholder text. Cristina if you're reading this: focus on Albums first.
-                    </p>
+						When you create a project-based template, the Awesome backend will allow the script to access the <code>data</code> variable. <br>
+						<code>data</code> has the following format:
+					</p>
+					
+					<div class="inset-box">
+						<code>{
+  "templates": {
+    "&lt;template name&gt;": "..."
+  }
+  "projects": { //list of projects
+    [
+      {
+        "name": "This is the Project Name",
+        "code": "This is the Project Code",
+        "fields": {
+          "Client": {
+            "values": ["Axomic Inc."]
+          },
+          "Description": {
+            "values": ["This is the description to the project blabh blahablahbl..."]
+          },
+          ... // more fields
+        },
+        "projectKeywords": {
+          "categories": {
+            "MarketSector": {
+              "keywords": [
+                {"name": "Residential"},
+                {"name": "Urban Design"}
+              ]
+            },
+            "City": {
+              "keywords": [
+                {"name": "New York"}
+              ]
+            }
+          },
+          ... // more keywords
+        },
+        "searches": [
+          {
+            "files": [
+              {
+                "id": 42,
+                "displayFields": {
+                  "photographer": "Phil it's me"
+                },
+                "sizes": {
+                  "medium": {
+                    "url": "https://data.openasset.com/...",
+                    "width": "1500",
+                    "height": "1000"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}</code>
+					</div>
+					<p>
+						Okay this is probably a lot (and hard to look.) TODO: Write a JSON viewer in JS. <br>
+						But the general gist can be gotten by keeping the following structures in mind: <br>
+					</p>
+					<ul>
+						<li>The <code>data</code> variable has two attributes: <code>templates</code>, and <code>projects</code>.</li>
+						<li>
+							Everything important exists inside the <b><code>projects</code></b> object. This includes the projects' metadata, as well 
+							the files associated with the projects.
+						</li>
+						<li>
+							Each project object contains the following attributes:
+							<ul>
+								<li><code>name</code> - Project name</li>
+								<li><code>code</code> - Project code</li>
+								<li><code>fields</code> - Project (custom) fields</li>
+								<li><code>projectKeywords</code> - Project keyword categories</li>
+								<li><code>searches</code> - file objects of the images/files in the project</li>
+							</ul>
+						</li>
+						<li>
+							The <code>fields</code> dictionary is key'd on project field codes, their value a dict with the attribute "values" that contains a list of field values.
+							I've never seen this <code>values</code> attribute contain more than one value.
+						</li>
+						<li>
+							The <code>projectKeywords</code> object contains a singular attribute: <code>categories</code>, 
+							which contains a dictionary object that is key'd on the project keyword codes, their value an object containing the attribute <code>keywords</code>
+							the points to a list of keyword objects. <br>
+							Each keyword object is a simple <code>name</code> attribute that points to the keyword name.
+						</li>
+					</ul>
+
+					<p>
+						When in doubt, look at the JSON of the returned Example Data Object in the Awesome script editor to see what needs to be grabbed. <br><br>
+						As you can see, most of the difficulty of grabbing project metadata comes in navigating the javascript object itself. <br>
+						Familiarize yourself with how to navigate nested JavaScript objects.
+					</p>
+
+					<p>
+						I've crafted the following questions to test every aspect of grabbing project metadata. 
+						Once you're able to answer the questions, you should be able to ready to do project-based templates. <br>
+						<br>
+						For all the questions, assume you have access to the variable <code>data</code>.
+					</p>
+
+					<div class="question">
+						<ol>
+							<li>
+								The client has selected a single project. Their system has a project field called <code>Client</code>. 
+								Retrieve the value of this <code>Client</code> for the project that our esteemed client has selected, O' Servant of Templates.
+							</li>
+							<li>
+								The client tires of the <code>Client</code> field. Their systme has a project keyword category called <code>Area</code>
+							</li>
+						</ol>
+					</div>
 
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>

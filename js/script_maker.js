@@ -189,9 +189,10 @@ json_requests["employee"] = `/*
     "keywords": "all"
   },
   "projects": {
-    "displayFields": "code,fields,name",
+    "displayFields": "code,fields,name,hero_image_id",
     "fields": "all",
-    "projectKeywords": "all"
+    "projectKeywords": "all",
+    "withHeroImage": 1
   }
 }
 */

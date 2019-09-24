@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Grabbing Employee Metadata - OpenAsset Templating Tutorial</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
+		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+
+		<script type="text/javascript" src="/js/page_manager.js"></script>
+	</head>
+	<body>
+		<div class="section logo">
+			<img id="template-logo" src="/images/templating.png"/>
+		</div>
+		<div class="section title">
+			<div class="inner-section">
+				<div class="title-text" id="title-text">
+					Grabbing File (Album) Metadata
+				</div>
+				<div class="subtitle-text">
+                    The power of HR! But like, with coding!
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="inner-section">
+				<div class="text-block">
+                    <p>
+
+					</p>
+					
+					<div class="inset-box">
+						<code>{
+}
+						</code>
+					</div>
+					<p>
+                        Again, like the project metadata, there's a lot to look at. TODO: Write a JSON viewer in JS. <br>
+                        A simple guide of what's going on:
+                    </p>
+
+                    <p>
+                        I've crafted the following questions to test every aspect of grabbing employee metadata. 
+                        Once you're able to answer the questions, you should be able to ready to do project-based templates. <br>
+                        <br>
+                        For all the questions, assume you have access to the variable <code>data</code>.
+                    </p>
+
+                    <div class="question">
+                        <ol>
+                            <li>
+                                J Perm
+                            </li>
+                            <li>
+                                Z Perm
+                            </li>
+                        </ol>
+                    </div>
+					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
+				</div>
+			</div>
+		</div>
+		<a id="back-btn" class="btn" href=".html">&lt  </a>
+		<a id="next-btn" class="btn" href=".html">Next  &gt</a>
+	</body>
+    <script>
+		populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+		populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+		populate_str_into_dom(get_current_page_name(), "title-text");
+
+		update_href_of_dom(get_prev_filename(), "back-btn");
+		update_href_of_dom(get_next_filename(), "next-btn");
+	</script>
+</html>
+
