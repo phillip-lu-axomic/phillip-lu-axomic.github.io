@@ -142,7 +142,7 @@
 								Retrieve the value of this <code>Client</code> for the project that our esteemed client has selected, O' Servant of Templates.
 							</li>
 							<li>
-								The client tires of the <code>Client</code> field. Their systme has a project keyword category called <code>Area</code>
+								The client tires of the <code>Client</code> field. Their system has a project keyword category called <code>Area</code>
 							</li>
 						</ol>
 					</div>
@@ -154,5 +154,13 @@
 		<a id="back-btn" class="btn" href="grabbing_metadata.html">&lt  Grabbing Metadata</a>
 		<a id="next-btn" class="btn" href="grabbing_file_metadata.html">Image Metadata  &gt</a>
 	</body>
+    <script>
+		populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+		populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+		populate_str_into_dom(get_current_page_name(), "title-text");
+
+		update_href_of_dom(get_prev_filename(), "back-btn");
+		update_href_of_dom(get_next_filename(), "next-btn");
+	</script>
 </html>
 

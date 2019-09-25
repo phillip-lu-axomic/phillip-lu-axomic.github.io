@@ -3,6 +3,7 @@
 var base_url = "/templating_tutorial/"
 
 var url_name_to_page_name = {
+    "client_expectations.html": "Client Expectations",
     "populating_indesign_templates.html": "Populating InDesign Templates",
     "populating_powerpoint_templates.html": "Populating PowerPoint Templates",
     "populating_word_templates.html": "Populating W̠͜o͕r͏̙̥̹̮͖̭̹d̶͕͎̼͍̠̱͎ Templates",
@@ -19,6 +20,7 @@ var url_name_to_page_name = {
 
 var page_ordering = [
     "templating_intro.html",
+    "client_expectations.html",
     "populating_indesign_templates.html",
     "populating_powerpoint_templates.html",
     "populating_word_templates.html",
@@ -27,7 +29,7 @@ var page_ordering = [
     "grabbing_file_metadata.html",
     "grabbing_employee_metadata.html",
     "template_references.html",
-    "custom_scripts.html",
+    // "custom_scripts.html",
     "default_script_maker.html",
     "templating_intro.html"
 ];

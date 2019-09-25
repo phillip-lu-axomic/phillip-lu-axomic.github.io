@@ -28,24 +28,191 @@
 			<div class="inner-section">
 				<div class="text-block">
                     <p>
-
+						I'm sorry.
 					</p>
 					
 					<div class="inset-box">
 						<code>{
+  "employees": [
+    {
+      "first_name": "Sasha",
+      "last_name": "Smirnov",
+      "code": "04945",
+      "hero_image_id": 17, // image ID, NOTE: this value is an INTEGER
+      ... // all employee fields are attributes
+      "projects": [
+        {
+          "id": "10", //project id
+          "roles": {
+            "total": 2, // number of rows
+            "rows": [
+              {
+                "start_date": "20190924000000",
+                "end_date": "20190924000000",
+                "project_role": "Site Manager",
+                "role_description": "Manages the site with a whistle."
+              },
+              { // we don't usually have a second role, but this can happen when
+                // employees have different positions with the same project across different times
+                "start_date": "201602020000",
+                "end_date": "201806030000",
+                "project_role": "Assistant Site Manager",
+                "role_description": "Assisted the site manager"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "projects": {
+    "10": { // project ID
+      "name": "Big Mound of Mud I Made", // project name
+      "code": "MUD001", // project code
+      "hero_image_id": 17,
+      "projectKeywords": [ // project keywords
+        { "id": 44 }, { "id": 67 } , ...  // project keyword IDs
+      ],
+      "fields": [ // project fields
+        {
+          "id": 3, // field ID
+          "values": [ "20190404000000" ]
+        },
+        {
+          "id": 5, // field ID
+          "values": [ "This is a project description" ],
+        }
+      ]
+    },
+    "14": {...},
+    ... // more projects
+  },
+  "files": {
+    "17": { // image ID, NOTE: this value is a STRING
+      "filename": "A00404.jpg",
+      "rank": 5,
+      "keywords": [ // these are file-keywords
+        {"id": 7}, {"id": 70}, ... // these are (file) keyword IDs
+      ],
+      "sizes": [
+        {
+          "id": "7", // size ID
+          "http_relative_path": "...",
+          "http_root": "//data.openasset.com/cabbage"
+        }
+      ]
+    }
+  },
+  "fields": {
+    "5": { // field ID
+      "code": "Description"
+    }
+  },
+  "keywords": {
+    &lt;keyword_id&gt;: {
+      "keyword_category_id": &lt;keyword_cat_id&gt;,
+      "name": &lt;keyword_value&gt;
+    },
+    "8": {
+      "keyword_category_id": 1,
+      "name": "Exterior"
+    },
+    ...
+  },
+  "projectKeywords": {
+    "44": { // project keyword ID
+      "project_keyword_category_id": 12, // project keyword category ID
+      "name": "London"
+    },
+    ... // more project keywords
+  }
+  "sizes": {
+    &lt;image_id&gt;: {}
+  },
+  "templates": {
+    "resumeTemplate": "https://data.openasset.com/..."
+  }
 }
 						</code>
 					</div>
 					<p>
-                        Again, like the project metadata, there's a lot to look at. TODO: Write a JSON viewer in JS. <br>
-                        A simple guide of what's going on:
+						Okay. Unlike project- or image-based metadata, employee-based scripts grabs a LOT of different types of metadata.
+						Briefly speaking, this is because the infrastructure in retrieving metadata is different for project- and image-based metadata than it is for 
+						employee-based metadata. <br>
+						<br>
+						But you don't need to know that. Again, a quick overview of what the employee-based script retrieves for its <code>data</code>:
                     </p>
+					<ul>
+						<li>
+							<code>data</code> is an object, with the following attributes:
+							<ul>
+								<li><code>employees</code> - List of employee objects. I'll explain below.</li>
+								<li><code>projects</code> - Dict of &lt;project ID&gt; => project object. I'll explain below.</li>
+								<li><code>files</code> - Dict of &lt;file ID&gt; => file object. I'll explain.</li>
+								<li><code>keywords</code> - Dict of &lt;(file) keyword ID&gt; => (file) keyword object. I'll plain.</li>
+								<li><code>fields</code> - Dict of &lt;project field ID&gt; => project field object. I'll.</li> 
+								<li><code>projectKeywords</code> - Dict of &lt;project keyword ID&gt; => project keyword object. I.</li>
+								<li><code>sizes</code> - Stores the metadata for the different images sizes. Note: for templating, you'll probably not touch this info.</li>
+								<li><code>templates</code> - Stores the URL to access the templates.</li>
+							</ul>
+						</li>
+						<li>
+							<code>data.employees</code> contains all the employee-based metadata as attributes (i.e. <code>first_name</code>, <code>code</code>),
+							and their associated <code>projects</code> (a list of emp-proj link objs), each of which contains the ID of the associated <code>project</code>,
+							and a <code>rows</code> obj, which contains a list of emp-proj link metadata (i.e. <code>project_role</code>, <code>role_description</code>).
+						</li>
+						<li>
+							<code>data.projects</code> contains a mapping of project IDs to project objects. Each <code>project</code> object contains the following:
+							<ul>
+								<li><code>project_name</code></li>
+								<li><code>project_code</code></li>
+								<li><code>hero_image_id</code> - which refers to the image ID of the hero image</li>
+								<li>
+									<code>fields</code> - a list of field objects, each of which contains their field ID and their values. 
+									Functionally this means if you want to know the fields' names, you'll need to map it to <code>data.fields</code>.
+								</li>
+								<li>
+									<code>projectKeywords</code> - a list of objects where the attribute <code>id</code> maps to the 
+									ID of the project keyword (see <code>data.projectKeywords</code>).
+								</li>
+							</ul>
+						</li>
+						<li>
+							<code>data.files</code> contains a mapping of file IDs to file objects. Each <code>file</code> object contains the following attributes:
+							<ul>
+								<li><code>filename</code></li>
+								<li><code>rank</code></li>
+								<li><code>keywords</code> - a list of objs where the attribute <code>id</code> links to the ID of the (file) keyword ID</li>
+								<li>
+									<code>sizes</code> - a list of size objects; most importantly, each of these objects contain the <code>http_root</code> and
+									<code>http_relative_path</code>, which combine together to make the full URL to the file of the given size.
+								</li>
+							</ul>
+						</li>
+						<li>
+							<code>data.keywords</code> contains a mapping of (file) keyword IDs to their keyword object. 
+							Each <code>keyword</code> object contains two attributes: 
+							<ul>
+								<li><code>keyword_category_id</code> - the ID of the keyword category this keyword belongs to</li>
+								<li><code>name</code> - the keyword value itself</li>
+							</ul>
+						</li>
+						<li>
+							<code>data.projectKeywords</code> is similar to <code>data.keywords</code>, 
+							but instead of containing information about file keywords, these contains <i>project</i> keywords. See <code>data.keywords</code> for format.
+							Note: instead of <code>keyword_category_id</code>, <code>projectKeywords</code> contain <code>project_keyword_category_id</code>.
+						</li>
+						<li>
+							<code>data.fields</code> contains a mapping of field IDs to a field object, which contains the field name keyed by <code>code</code>.
+						</li>
+					</ul>
 
                     <p>
-                        I've crafted the following questions to test every aspect of grabbing employee metadata. 
-                        Once you're able to answer the questions, you should be able to ready to do project-based templates. <br>
+						So, as you can see, this time <code>data</code> contains a WHOLE lot more metadata.
+						While for our current templating process, there's already helper functions available to map the fields and keywords correctly, 
+						it's still worth it to go through the structures and see for yourself how we should link the metadata together. <br>
                         <br>
-                        For all the questions, assume you have access to the variable <code>data</code>.
+                        For all the following questions, assume you have access to the variable <code>data</code>.
                     </p>
 
                     <div class="question">
