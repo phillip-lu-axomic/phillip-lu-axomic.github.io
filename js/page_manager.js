@@ -4,6 +4,9 @@ var base_url = "/templating_tutorial/"
 
 var url_name_to_page_name = {
     "client_expectations.html": "Client Expectations",
+    "client_behavior.html": "Client Behavior",
+    "template_examples.html": "Template Examples",
+    "engineer_responsibility.html": "Engineer Responsibility",
     "populating_indesign_templates.html": "Populating InDesign Templates",
     "populating_powerpoint_templates.html": "Populating PowerPoint Templates",
     "populating_word_templates.html": "Populating W̠͜o͕r͏̙̥̹̮͖̭̹d̶͕͎̼͍̠̱͎ Templates",
@@ -21,6 +24,9 @@ var url_name_to_page_name = {
 var page_ordering = [
     "templating_intro.html",
     "client_expectations.html",
+    // "client_behavior.html",
+    "template_examples.html",
+    "engineer_responsibility.html",
     "populating_indesign_templates.html",
     "populating_powerpoint_templates.html",
     "populating_word_templates.html",

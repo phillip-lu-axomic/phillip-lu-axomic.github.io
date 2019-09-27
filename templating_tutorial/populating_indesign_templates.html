@@ -25,8 +25,93 @@
 			<div class="inner-section">
 				<div class="text-block">
                     <p>
-                        Placeholder text. Cristina if you're reading this: focus on PowerPoint first.
-                    </p>
+						Just gonna dump a lot of info here for now. <br>
+						<br>
+
+						Alright, to access the InDesign document in the script, just do the following:
+					</p>
+
+					<div class="inset-box">
+						<code>var indesign = new InDesign(data.templates["yourTemplateNameHere"])</code>
+					</div>
+
+					<p>
+						At this point, it might be good to familiarize yourself with how InDesign thinks 
+						about <a href="https://helpx.adobe.com/indesign/using/pages-spreads.html" target="_blank">pages and spreads.</a> <br>
+						In a nutshell: think of spreads like a full "spread" of an open book. Virtually all our clients want their templates to be built using 
+						one or two pages per spread (i.e. we haven't seen anyone request a "3 page per spread" template... yet). <br>
+						<br>
+						Our Awesome™ backend deals mainly with spreads - for example, we use the spread index to specify which framebox to populate images into.
+					</p>
+
+					<p>
+						Okay, so we currently have two functions we use to manipulate the overall InDesign document structure:
+					</p>
+                    <div class="inset-box">
+                        <ul>
+                            <li><code>indesign.addSpreads(amount)</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+									Creates <i>amount</i> spreads at the end of the document.
+                                </div>
+                            </li>
+                            <li><code>powerpoint.addPages(amount, master_spread_index)</code>
+                                <div style="margin-left:2em; margin-bottom:1em;">
+                                    Creates <i>amount</i> pages into the last spread, with the layout of the master spread specified by the <i>master_spread_index</i>
+                                </div>
+                            </li>
+                        </ul>
+					</div>
+					
+					<p>
+						While <code>addSpreads</code> should make sense intuitively, <code>addPages</code> might be a bit confusing with the whole "master page" thing.
+						Okay. Read a bit of the <a href="https://helpx.adobe.com/indesign/using/master-pages.html">Adobe site about masters</a>
+					</p>
+
+					<p>
+						In order to actually populate stuff into an InDesign document, the most important part is the script label. 
+						Think of these script labels as identifiers for the boxes that we want to populate text or image into.
+					</p>
+
+					<div class="full-img">
+						<img src="/images/indesign_clarification/script_label_explanation.png">
+					</div>
+
+					<p>
+						Script labels can be added/edited by doing the following steps:
+					</p>
+
+					<ol>
+						<li>Select the selection tool (hotkey: esc or v)</li>
+						<li>Select the framebox that you want to edit the script label for</li>
+						<li>Click on the Script label tab. (If you don't see it on the right sidebar, make it visible via Window > Utilities > Script Labels)</li>
+						<li>Write down the script label you'd like the framebox to have.</li>
+					</ol>
+
+					<div class="full-img">
+						<img src="/images/indesign_clarification/indesign_script_label_steps.png">
+					</div>
+
+					<p>
+						Now that you've added the script label, you can now call on the following function to populate text into the specified framebox!
+					</p>
+
+					<div class="inset-box">
+						<code>var pageItemPlaceholder = where().pageItems(script_label);</code><br>
+						<code>indesign.overridePageItems(spread_index, pageItemPlaceholder);</code><br>
+						<code>indesign.appendText("this is my text", pageItemPlaceholder.spreads(spread_index), "Character Style")</code>
+					</div>
+
+					<p>
+						Several things happening here. As you can see, the script label is used to actually grab the "Page Item Placeholder",
+						which then is used to A. override page items and B. append the text with the given text, in the given spread, with the given character style. <br>
+						<br>
+						While it might seem useful to really understand what each line is doing,
+						ultimately the three lines does: <br>
+						<br>
+						<i>Populate this text with the specified character style into the framebox at the specified spread and the script label </i><br>
+						<br>
+						Don't worry about anything else.
+					</p>
 
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>

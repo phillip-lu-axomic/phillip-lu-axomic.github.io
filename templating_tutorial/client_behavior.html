@@ -13,10 +13,10 @@
 		</div>
 		<div class="section title">
 			<div class="inner-section">
-				<div class="title-text">
+				<div class="title-text" id="title-text">
 					Client Behavior
 				</div>
-				<div class="subtitle-text">
+				<div class="subtitle-text" id="subtitle-text">
 					What will they do??
 				</div>
 			</div>
@@ -25,7 +25,7 @@
 			<div class="inner-section">
 				<div class="text-block">
 					<p>
-						Placeholder, to be completed
+						Clients
 					</p>
 				</div>
 			</div>
@@ -33,5 +33,13 @@
 		<a id="back-btn" class="btn" href="client_expectations.html">&lt  Client Expectations</a>
 		<a id="next-btn" class="btn" href="template_examples.html">Template Examples  &gt</a>
 	</body>
+	<script>
+		populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+		populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+		populate_str_into_dom(get_current_page_name(), "title-text");
+
+		update_href_of_dom(get_prev_filename(), "back-btn");
+		update_href_of_dom(get_next_filename(), "next-btn");
+	</script>
 </html>
 

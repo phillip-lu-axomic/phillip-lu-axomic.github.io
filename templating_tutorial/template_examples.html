@@ -6,6 +6,8 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i|Lora:400,400i,700" rel="stylesheet"> 
 		<link rel="stylesheet" type="text/css" href="/css/blog_view.css">
+
+        <script type="text/javascript" src="/js/page_manager.js"></script>
 	</head>
 	<body>
 		<div class="section logo">
@@ -13,10 +15,10 @@
 		</div>
 		<div class="section title">
 			<div class="inner-section">
-				<div class="title-text">
+				<div class="title-text" id="title-text">
 					Template Examples
 				</div>
-				<div class="subtitle-text">
+				<div class="subtitle-text" id="subtitle-text">
 					What do they look like???
 				</div>
 			</div>
@@ -24,7 +26,7 @@
 		<div class="section">
 			<div class="inner-section">
 				<div class="text-block">
-                    <h3>InDesign Template</h3>
+                    <h3>InDesign Project-Based Template</h3>
                     <p>
                         Here's what a typical populated template looks like:
                     </p>
@@ -53,6 +55,26 @@
 						</div>
 						</a>
 					</div>
+
+					<h3>PowerPoint Image-Based Template</h3>
+					<p>
+						Yeah and here's what a typical image-based template looks like. Note that clients can select any amounts of images they'd like.
+					</p>
+					<div class="full-width-flex inset-box">
+						<div style="text-align:center;  margin: 1em;"> 
+							<img src="/images/powerpoint_example.png" style="width: 100%;">
+						</div>
+					</div>
+
+					<div class="full-width-flex" style="justify-content:center;">
+						<a href="/downloadable_files/populated_ppt_example.pptx">
+						<div class="highlightable-icon">
+							<img src="/images/powerpoint_icon_small.jpeg" style="width:100%;">
+							<div style="font-size:0.7em; text-align: center; padding: 0.5em; line-height: 1.2em; text-decoration: none;">Three Page Project Profile</div>
+						</div>
+						</a>
+					</div>
+
 					<img src="/images/openasset_logo.jpg" align="top" style="max-height:1em;" class="ending-logo">
 				</div>
 			</div>
@@ -60,5 +82,13 @@
 		<a id="back-btn" class="btn" href="client_behavior.html">&lt  Client Behavior</a>
 		<a id="next-btn" class="btn" href="engineer_responsibility.html">Engineer Responsibility  &gt</a>
 	</body>
+    <script>
+		populate_str_into_dom("&lt  " + get_prev_page_name(), "back-btn");
+		populate_str_into_dom(get_next_page_name() + "  &gt", "next-btn");
+		populate_str_into_dom(get_current_page_name(), "title-text");
+
+		update_href_of_dom(get_prev_filename(), "back-btn");
+		update_href_of_dom(get_next_filename(), "next-btn");
+	</script>
 </html>
 
